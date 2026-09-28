@@ -1,0 +1,9 @@
+# 大文件/二进制不入库
+tools/*.exe
+
+# wecom-devin-bridge
+tools/wecom-devin-bridge/bindings.json
+tools/wecom-devin-bridge/bridge.log
+tools/wecom-devin-bridge/__pycache__/
+.bridge*.lock
+web/server.log

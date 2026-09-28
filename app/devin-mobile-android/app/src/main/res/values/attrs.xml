@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="bubbleUserColor" format="color" />
+    <attr name="bubbleDevinColor" format="color" />
+    <attr name="listTitleColor" format="color" />
+</resources>

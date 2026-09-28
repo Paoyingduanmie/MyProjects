@@ -1,0 +1,219 @@
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; }
+body {
+  background:
+    radial-gradient(120% 80% at 50% -10%, #fff8e8 0%, rgba(255,248,232,0) 60%),
+    #f5f0e8;
+  color: #4a4238;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  display: flex;
+  justify-content: center;
+}
+.app {
+  width: 100%;
+  max-width: 520px;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 14px;
+  padding-top: 14px;
+  padding-top: max(14px, env(safe-area-inset-top));
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(120, 105, 80, 0.18);
+}
+.hud { display: flex; gap: 8px; align-items: center; font-size: 16px; color: #4a4238; }
+.hud b { color: #3f9d63; }
+.label {
+  font-size: 13px;
+  color: #8a7f6d;
+  background: #ece2cc;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+button {
+  background: #3fae6a;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 9px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(63, 174, 106, 0.28);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+}
+button:hover { filter: brightness(1.05); }
+button:active { transform: translateY(1px) scale(0.98); box-shadow: 0 3px 8px rgba(63, 174, 106, 0.2); }
+button.ghost {
+  background: transparent;
+  color: #8a7f6d;
+  border: 1px solid #d8cbb2;
+  box-shadow: none;
+}
+button.ghost:hover { color: #4a4238; border-color: #3fae6a; }
+button.ghost:active { transform: translateY(1px); }
+button.nav { padding: 6px 11px; font-size: 18px; line-height: 1; }
+.actions { display: flex; gap: 6px; }
+button.icon { padding: 6px 9px; font-size: 16px; line-height: 1; }
+#level-input {
+  width: 3em;
+  background: #fffdf8;
+  color: #3f9d63;
+  border: 1px solid #d8cbb2;
+  border-radius: 6px;
+  padding: 3px 4px;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+}
+.board-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+#board {
+  border-radius: 14px;
+  touch-action: none;
+  box-shadow: 0 18px 50px rgba(90, 75, 50, 0.18), inset 0 0 0 1px rgba(120, 105, 80, 0.1);
+}
+/* 通关/开始覆盖层:毛玻璃 + 卡片缩放进入 */
+.overlay {
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(74, 62, 44, 0.32);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.overlay.show { opacity: 1; pointer-events: auto; }
+.overlay-card {
+  text-align: center;
+  padding: 26px 36px;
+  background: linear-gradient(180deg, #fffdf8, #f7efdd);
+  border: 2px solid rgba(74, 66, 56, 0.55);
+  border-radius: 220px 18px 235px 18px/18px 235px 18px 220px;
+  box-shadow: 4px 5px 0 rgba(74, 66, 56, 0.08), 0 20px 60px rgba(90, 75, 50, 0.3);
+  transform: scale(0.8);
+  opacity: 0;
+  transition: transform 0.32s cubic-bezier(0.2, 1.3, 0.4, 1), opacity 0.32s ease;
+}
+.overlay.show .overlay-card { transform: scale(1); opacity: 1; }
+.overlay-card h2 {
+  margin: 0 0 16px;
+  font-size: 26px;
+  color: #d9880f;
+  text-shadow: 0 0 18px rgba(233, 161, 59, 0.35);
+}
+.win-sub { margin: -8px 0 16px; font-size: 13px; color: #8a7f6d; }
+.win-btns { display: flex; gap: 8px; }
+.win-btns button { flex: 1; }
+/* 通关卡:纸屑庆祝 */
+.win-card {
+  border: none;
+  border-radius: 18px;
+  box-shadow: 0 12px 32px rgba(90, 75, 50, 0.18);
+  padding-top: 32px;
+  position: relative;
+}
+.win-card .conf { position: absolute; top: 12px; left: 0; right: 0; font-size: 0; }
+.win-card .conf i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin: 0 5px; }
+.win-card .conf i:nth-child(1) { background: #e2608c; }
+.win-card .conf i:nth-child(2) { background: #e9a13b; }
+.win-card .conf i:nth-child(3) { background: #3fae6a; }
+.win-card .conf i:nth-child(4) { background: #5b8dd9; }
+.win-card .conf i:nth-child(5) { background: #8b6fd8; }
+.win-card h2 { color: #4a4238; text-shadow: none; }
+/* 失败卡 + 计时模式 */
+.fail-card { border: none; border-radius: 18px; box-shadow: 0 12px 32px rgba(90, 75, 50, 0.18); }
+.fail-card h2 { color: #d94f3d; text-shadow: none; }
+#timer-chip.low { color: #d94f3d; font-weight: 700; }
+body.timed #level-chip, body.timed #prev-btn, body.timed #next-btn { display: none; }
+.diff-row { display: flex; gap: 6px; align-items: center; }
+.diff-tip { font-size: 12px; color: #8a7f6d; white-space: nowrap; }
+.diff { flex: 1; padding: 7px 4px; font-size: 13px; }
+/* 开始页卡片:和风竖排(左竖标题+朱印,右菜单列) */
+.start-card {
+  width: 300px;
+  max-width: 92%;
+  display: flex;
+  flex-direction: row;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #f7f0de;
+  border: 1.5px solid #b8a988;
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(90, 75, 50, 0.3);
+  text-align: left;
+}
+.start-card .w-left {
+  position: relative;
+  width: 88px;
+  flex-shrink: 0;
+  border-right: 1px solid #d8cbb2;
+  background: repeating-linear-gradient(0deg, transparent 0 27px, rgba(184, 169, 136, 0.25) 27px 28px), #f3ead8;
+}
+.start-card .v-title {
+  display: block;
+  writing-mode: vertical-rl;
+  font-family: KaiTi, 'STKaiti', '楷体', serif;
+  font-size: 46px;
+  font-weight: 700;
+  letter-spacing: 12px;
+  color: #3d3529;
+  text-shadow: none;
+  margin: 20px auto 0;
+}
+.start-card .hanko {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-5deg);
+  width: 26px;
+  height: 26px;
+  background: #c94f3d;
+  color: #fffdf8;
+  font: 700 10px/26px KaiTi, 'STKaiti', serif;
+  text-align: center;
+  border-radius: 5px;
+}
+.start-card .w-right { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 16px 14px; }
+.start-card .start-tip { margin: 0; font-size: 11px; color: #8a7f6d; line-height: 1.6; }
+.start-card button { width: 100%; }
+.start-card .start-go {
+  font-size: 15px;
+  font-weight: 800;
+  padding: 11px;
+  background: #3d3529;
+  color: #f3ead8;
+  border-radius: 5px;
+  box-shadow: none;
+}
+.start-card .start-go:hover { filter: brightness(1.2); }
+.start-card button.ghost {
+  border-color: #b3a17f;
+  color: #6d5f47;
+  border-radius: 5px;
+  padding: 8px 6px;
+  font-size: 12px;
+}
+.start-card button.ghost:hover { color: #3d3529; border-color: #6d5f47; }
+.start-card .diff-row { gap: 5px; }
+.start-card .diff { padding: 7px 2px; font-size: 12px; }
+.cover-thumb { width: 22px; height: 22px; border-radius: 4px; object-fit: cover; vertical-align: middle; margin-right: 4px; }
+footer { margin-top: 12px; text-align: center; }
+.tip { font-size: 12px; color: #a3967d; line-height: 1.6; margin: 0 0 10px; }

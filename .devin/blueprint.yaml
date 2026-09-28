@@ -1,0 +1,77 @@
+# Devin 会话环境蓝图（git 管理版）
+# 本文件是仓库级蓝图：Devin 会话启动时按 initialize 装环境；
+# knowledge 是给会话的快速命令手册（build/test/release 等）。
+# 修改请走 MR，合并后新会话自动生效。
+
+initialize:
+  - uses: github.com/actions/setup-java@v4
+    with:
+      java-version: "17"
+      distribution: temurin
+  - name: 安装 Android SDK + 模拟器 + AVD
+    run: |
+      set -e
+      mkdir -p ~/toolchains/android-sdk/cmdline-tools
+      cd ~/toolchains/android-sdk
+      if [ ! -x cmdline-tools/latest/bin/sdkmanager ]; then
+        curl -fsSL -o cmdtools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+        unzip -q cmdtools.zip -d cmdline-tools && mv cmdline-tools/cmdline-tools cmdline-tools/latest && rm cmdtools.zip
+      fi
+      export ANDROID_HOME=$HOME/toolchains/android-sdk
+      export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH
+      { echo "ANDROID_HOME=$ANDROID_HOME"; echo "PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH"; } >> "$ENVRC"
+      yes | sdkmanager --licenses >/dev/null 2>&1 || true
+      sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0" "emulator" "system-images;android-34;google_apis;x86_64"
+      echo no | avdmanager create avd -n devin_api34 -k "system-images;android-34;google_apis;x86_64" -d pixel_5 --force
+  - name: 还原 devin-mobile 签名 keystore
+    run: |
+      if [ -n "$DEVIN_MOBILE_KEYSTORE_B64" ] && [ ! -f "$HOME/.devin-mobile-signing.keystore" ]; then
+        echo "$DEVIN_MOBILE_KEYSTORE_B64" | base64 -d > "$HOME/.devin-mobile-signing.keystore"
+      fi
+
+knowledge:
+  - name: build
+    contents: |
+      cd playground/android && ANDROID_HOME=$HOME/toolchains/android-sdk ./gradlew assembleDebug
+      # APK 产物：app/build/outputs/apk/debug/app-debug.apk
+  - name: emulator
+    contents: |
+      # 后台启动模拟器（KVM 可用；无窗口）
+      $ANDROID_HOME/emulator/emulator -avd devin_api34 -no-window -gpu swiftshader_indirect &
+      $ANDROID_HOME/platform-tools/adb wait-for-device
+      adb shell 'while [ "$(getprop sys.boot_completed)" != "1" ]; do sleep 2; done'
+      adb install -r playground/android/app/build/outputs/apk/debug/app-debug.apk
+      adb install -r app/devin-mobile-android/app/build/outputs/apk/debug/app-debug.apk
+      # 启动 playground 合集；devin-mobile 换成 com.nancy.devinmobile
+      adb shell monkey -p com.nancy.playground -c android.intent.category.LAUNCHER 1
+      # adb shell monkey -p com.nancy.devinmobile -c android.intent.category.LAUNCHER 1
+      adb exec-out screencap -p > shot.png   # 物理分辨率 1080x2340，tap 坐标也按此
+  - name: release
+    contents: |
+      # 发版流程：bump playground/android/app/build.gradle.kts 的 versionCode/versionName；
+      # changelog.md 顶部 prepend「v1.NN (NN)\n· note」；构建后 APK 复制到 playground/dist/games-debug.apk 和 ~/apk-dist/；
+      # dist/version.json 字段：versionCode/versionName/apkUrl/notes(string，用「；」join)/releases[]——Updater.kt 按此解析；
+      # 开 devin/<ts>-xxx 分支 push MR，本地 merge --no-ff 到 main 再推。
+  - name: devin_mobile_build
+    contents: |
+      cd app/devin-mobile-android && ANDROID_HOME=$HOME/toolchains/android-sdk ./gradlew assembleDebug
+      # 产物：app/build/outputs/apk/debug/app-debug.apk（包名 com.nancy.devinmobile）
+      # 模拟器装包后给悬浮窗权限：adb shell appops set com.nancy.devinmobile SYSTEM_ALERT_WINDOW allow
+  - name: devin_mobile_sign
+    contents: |
+      # 签名（同签名可原地更新不卸载）：keystore 在 ~/.devin-mobile-signing.keystore（蓝图从 DEVIN_MOBILE_KEYSTORE_B64 还原）
+      mkdir -p /tmp/apksign && cp <apk> /tmp/apksign/unsigned.apk && cd /tmp/apksign && \
+      KS_PASS=$DEVIN_MOBILE_KEYSTORE_PASS java -jar $ANDROID_HOME/build-tools/34.0.0/lib/apksigner.jar sign \
+        --ks $HOME/.devin-mobile-signing.keystore --ks-pass env:KS_PASS --out signed.apk unsigned.apk
+      # 验证 SHA-256 必须为 4603af4abf0c919e47945bef4fb9c764a801255d29cf180243dea6332e5e53a9
+  - name: devin_mobile_release
+    contents: |
+      # bump app/devin-mobile-android/app/build.gradle.kts versionCode/versionName → assembleDebug → 签名
+      # cp signed.apk app/dist/app-debug.apk；更新 app/dist/version.json 顶层字段 + history[] prepend 一条
+      # git add 只加显式路径（禁 git add .；config.json 永不提交）→ devin/<ts>-<slug> 分支 → MR → 本地 merge 到 main 再推
+  - name: notes
+    contents: |
+      # 新游戏：建 playground/<dir>/index.html，syncGameAssets 自动打进 assets/games/<dir>/；
+      # 共享 BGM 池放 playground/bgm/，页面用相对路径 '../../bgm/'（app 内）或 '../bgm/'（浏览器）；
+      # JS 桥 window.AndroidBridge：exit()/shareScore(text)（原生截屏分享）/vibrate(ms)/orientation('landscape')；
+      # 老内核机兼容：不用 aspect-ratio / inset / color-mix / dvh。
