@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="./assets/fj.7336eab9.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+    <meta name="description" content="A wx-flip clone based on Three.js" />
+    <title>跳一跳</title>
+    <script type="module" crossorigin src="./assets/index.3e786f29.js"></script>
+    <link rel="stylesheet" href="./assets/index.6c1f79ea.css">
+  <style>
+.back-btn { position: fixed; top: 10px; left: 10px; z-index: 50; width: 34px; height: 34px; border-radius: 999px; border: none; background: rgba(255,255,255,0.55); color: #333; font-size: 20px; line-height: 1; backdrop-filter: blur(4px); cursor: pointer; }
+.back-btn:active { background: rgba(255,255,255,0.85); }
+</style>
+</head>
+
+  <body>
+    <button class="back-btn" onclick="window.Bridge?Bridge.back():history.back()">‹</button>
+    <main>
+      <div class="hud-score-only">
+        <span class="score">0</span>
+      </div>
+    </main>
+    <div id="charge"><div class="bar"></div></div>
+    <button id="help-btn" class="skin-btn help-btn" type="button" title="玩法说明">?</button>
+    <button id="skin-btn" class="skin-btn" type="button" title="换皮肤">👗</button>
+    <div class="help-panel" id="help-panel">
+      <div class="help-card">
+        <div class="help-title">怎么玩</div>
+        <ul class="help-list">
+          <li>🖐 按住屏幕任意处蓄力，松开起跳</li>
+          <li>📊 底部进度条 = 蓄力大小，按越久跳越远</li>
+          <li>🎯 落在方块正中心得分更高</li>
+          <li>👗 右上角换形象：经典棋子 + 四款主题</li>
+          <li>‹ 左上角返回首页</li>
+        </ul>
+        <button id="help-ok" type="button">知道了</button>
+      </div>
+    </div>
+    <div class="skin-panel" id="skin-panel">
+      <div class="skin-panel-title">形象与音效</div>
+      <div class="sfx-wrap">
+        <div class="sfx-row"><span class="sfx-label">蓄力</span><div class="sfx-opts" id="sfx-charge"></div></div>
+        <div class="sfx-row"><span class="sfx-label">命中</span><div class="sfx-opts" id="sfx-perfect"></div></div>
+      </div>
+      <div class="skin-grid" id="skin-grid"></div>
+    </div>
+    <div class="overlay">
+      <div class="overlay-card">
+        <div class="overlay-score">
+          <div class="overlay-score-label">本局得分</div>
+          <div class="score">0</div>
+        </div>
+        <div class="overlay-best">历史最高 <b id="best-score">0</b><span id="new-record" hidden>🏅 新纪录</span></div>
+        <button id="restart" type="button">再来一次</button>
+      </div>
+    </div>
+    
+  </body>
+</html>

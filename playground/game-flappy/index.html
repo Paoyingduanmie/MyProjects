@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<!-- 基于 github.com/stephen-costa20/BirdFlappy (MIT License, Copyright (c) 2026 stephen-costa20) 改造 -->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Flappy 小鸟</title>
+<style>
+  :root {
+    --bg: #f5f2ec; --panel: #fffdf9; --ink: #39312f; --muted: #746d69;
+    --accent: #a9475e; --accent-deep: #873c52; --shadow: 0 6px 20px rgba(65,48,47,.09);
+  }
+  [data-theme="dark"] {
+    --bg: #1f1c22; --panel: #2b262e; --ink: #efe6e3; --muted: #a89894;
+    --accent: #e2879a; --accent-deep: #c96a80; --shadow: 0 6px 24px rgba(0,0,0,.35);
+  }
+  [data-theme="warm"] {
+    --bg: #f5ecdd; --panel: #fff7ea; --ink: #5a4632; --muted: #9a8266;
+    --accent: #e08a5c; --accent-deep: #c9713f; --shadow: 0 6px 24px rgba(200,130,70,.18);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    overflow: hidden; user-select: none; -webkit-user-select: none;
+    display: flex; flex-direction: column;
+  }
+  .top {
+    display: flex; align-items: center; gap: 10px;
+    padding: calc(env(safe-area-inset-top,0px) + 10px) 14px 8px;
+  }
+  .pill {
+    border: none; border-radius: 999px; background: var(--accent); color: #fff;
+    font-size: 14px; font-weight: 700; padding: 8px 16px; cursor: pointer;
+    box-shadow: var(--shadow); font-family: inherit;
+  }
+  .pill.ghost { background: var(--panel); color: var(--ink); }
+  .scores { display: flex; gap: 10px; flex: 1; justify-content: center; }
+  .score-box {
+    background: var(--panel); border-radius: 14px; padding: 6px 14px;
+    text-align: center; box-shadow: var(--shadow); min-width: 74px;
+  }
+  .score-box .label { font-size: 10px; letter-spacing: .5px; color: var(--accent); font-weight: 700; }
+  .score-box .val { font-size: 18px; font-weight: 800; }
+  .stage { flex: 1; padding: 6px 14px calc(env(safe-area-inset-bottom,0px) + 8px); position: relative; }
+  #game-container {
+    position: relative; width: 100%; height: 100%;
+    background: linear-gradient(180deg, #89c9dd 0%, #c2e6e7 58%, #e6efd4 100%);
+    border-radius: 18px; box-shadow: var(--shadow);
+    overflow: hidden; touch-action: manipulation;
+  }
+  #game-container::before {
+    content: ''; position: absolute; left: 0; right: 0; top: 0; bottom: 38px;
+    background-image:
+      radial-gradient(ellipse 46px 17px at 14% 20%, rgba(255,255,255,.72) 98%, transparent 100%),
+      radial-gradient(ellipse 58px 20px at 79% 34%, rgba(255,255,255,.62) 98%, transparent 100%),
+      radial-gradient(ellipse 24px 12px at 69% 15%, rgba(255,255,255,.6) 98%, transparent 100%);
+    pointer-events: none;
+  }
+  [data-theme="dark"] #game-container { background: linear-gradient(180deg, #3d637d, #638c91); }
+
+  /* --- 小鸟（CSS 绘制） --- */
+  #bird {
+    position: absolute; width: 38px; height: 28px;
+    background: linear-gradient(155deg, #ffe57a 20%, #f4b548 90%); border-radius: 50% 52% 46% 50%;
+    border: 2px solid #b6763d; left: 10%; top: 40%; z-index: 10;
+    box-shadow: inset -3px -4px 0 rgba(176,96,35,.15), 0 4px 8px rgba(41,66,56,.16);
+  }
+  #bird::before {
+    content: ''; position: absolute; width: 8px; height: 8px; background: #fff;
+    border-radius: 50%; top: 3px; right: 5px; border: 2px solid #774d36; z-index: 12;
+  }
+  #bird::after {
+    content: ''; position: absolute; top: 8px; right: -10px; width: 0; height: 0;
+    border-top: 5px solid transparent; border-bottom: 5px solid transparent;
+    border-left: 8px solid #e67e22; z-index: 11;
+  }
+  .wing {
+    position: absolute; width: 16px; height: 10px; background: #f9cb5f;
+    border: 2px solid #b6763d; border-radius: 50%; top: 7px; left: 5px; z-index: 12;
+  }
+  .pipe {
+    position: absolute; width: 60px;
+    background: linear-gradient(90deg, #65a77f 0%, #a7d5a4 28%, #8bc298 70%, #528b73 100%);
+    border: 2px solid #4d866b; box-sizing: border-box; border-radius: 8px;
+    box-shadow: 3px 3px 8px rgba(41,77,67,.18);
+  }
+  .pipe::after {
+    content: ''; position: absolute; width: 100%; height: 20px;
+    background: linear-gradient(90deg, #65a77f, #a7d5a4 35%, #528b73);
+    border: 2px solid #4d866b; left: -2px;
+    box-sizing: content-box; border-radius: 6px;
+  }
+  .pipe-top::after { bottom: -20px; }
+  .pipe-bottom::after { top: -20px; }
+  #score-display {
+    position: absolute; top: 8%; width: 100%; text-align: center;
+    font-size: 44px; color: #fff; text-shadow: 0 2px 8px rgba(30,66,67,.45);
+    z-index: 20; pointer-events: none; font-weight: 800;
+  }
+  #ground {
+    position: absolute; bottom: 0; width: 100%; height: 40px;
+    background: linear-gradient(#e4d7ad, #c4ac83); border-top: 4px solid #84b58a; z-index: 15;
+  }
+  #ground::before { content: ''; position: absolute; top: 0; width: 100%; height: 7px; background: #b5d39b; }
+  #bird.shielded { box-shadow: 0 0 0 4px rgba(120,190,255,.85); }
+  .item {
+    position: absolute; width: 36px; height: 30px; z-index: 9;
+    font-size: 22px; line-height: 30px; text-align: center; font-weight: 800;
+    color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.4);
+    filter: drop-shadow(0 1px 1px rgba(0,0,0,.3));
+  }
+  #mission {
+    position: absolute; bottom: 48px; left: 50%; transform: translateX(-50%);
+    background: rgba(255,253,248,.94); color: #4a3b36; border: 2px dashed #d9a05b;
+    border-radius: 999px; padding: 4px 14px; font-size: 12px; font-weight: 700;
+    z-index: 18; display: none; white-space: nowrap;
+  }
+  #mission.show { display: block; }
+  .dbl { display: none; font-size: 9px; color: #fff; background: var(--accent); border-radius: 6px; padding: 0 6px; margin-top: 2px; }
+  .dbl.show { display: inline-block; }
+  .help-card {
+    background: var(--panel); border-radius: 14px; padding: 14px 16px;
+    width: 250px; text-align: left; font-size: 12px; line-height: 2;
+    color: var(--ink); box-shadow: var(--shadow); margin-bottom: 12px;
+  }
+  .help-card b { color: var(--accent); }
+
+  .overlay {
+    position: absolute; left: 0; right: 0; top: 0; bottom: 0;
+    display: none; align-items: center; justify-content: center; flex-direction: column;
+    background: rgba(30,20,25,.45); border-radius: 18px; z-index: 30;
+  }
+  .overlay.show { display: flex; }
+  .ov-msg { font-size: 24px; font-weight: 800; color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,.3); }
+  .ov-sub { font-size: 14px; color: #ffe3ec; margin: 8px 0 10px; }
+  .rank { width: 200px; display: none; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+  .rank.show { display: flex; }
+  .rank .rt { font-size: 12px; font-weight: 800; color: #ffe3ec; margin-bottom: 2px; }
+  .rank .rr { display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    background: rgba(255,255,255,.9); border-radius: 8px; padding: 3px 10px; font-size: 12px; color: #4a3b36; }
+  .rank .rr.me { background: #e2879a; color: #fff; font-weight: 800; }
+  .rank .rr .rs { font-variant-numeric: tabular-nums; font-weight: 700; }
+  .ov-btns { display: flex; gap: 10px; }
+  .start-ov { background: rgba(30,20,25,.42); }
+  .start-card {
+    background: var(--panel); border-radius: 18px; padding: 16px 14px; width: 232px;
+    display: flex; flex-direction: column; gap: 8px; box-shadow: var(--shadow);
+  }
+  .start-card .st { font-size: 20px; font-weight: 800; color: var(--ink); text-align: center; letter-spacing: .5px; }
+  .start-card .pill { width: 100%; padding: 10px 12px; font-size: 13px; display: flex; align-items: center; justify-content: flex-start; gap: 6px; text-align: left; }
+  .start-card .pill.go { font-size: 15px; font-weight: 800; padding: 12px; justify-content: center; }
+  .m-cover-img { width: 20px; height: 27px; border-radius: 4px; object-fit: cover; }
+  .hint { text-align: center; font-size: 11px; color: var(--muted); padding-bottom: calc(env(safe-area-inset-bottom,0px) + 6px); }
+</style>
+</head>
+<body>
+  <div class="top">
+    <button class="pill ghost" id="backBtn">‹ 返回</button>
+    <div class="scores">
+      <div class="score-box"><div class="label">得分</div><div class="val" id="scoreEl">0</div><div id="dblEl" class="dbl">×2 得分中</div></div>
+      <div class="score-box"><div class="label">最高</div><div class="val" id="bestEl">0</div></div>
+    </div>
+    <button class="pill ghost" id="pauseBtn">⏸</button>
+  </div>
+  <div class="stage">
+    <div id="game-container">
+      <div id="score-display">0</div>
+      <div id="mission"></div>
+      <div id="bird"><div class="wing"></div></div>
+      <div id="ground"></div>
+      <div class="overlay start-ov show" id="startOv">
+        <div class="start-card">
+          <div class="st">Flappy 小鸟</div>
+          <button class="pill go" id="startBtn">▶ 开始游戏</button>
+          <button class="pill ghost" id="mSkin"><span id="mSkinTxt">🐤 形象</span></button>
+          <button class="pill ghost" id="mCover"><img class="m-cover-img" id="mCoverImg"><span id="mCoverTxt">封面</span></button>
+          <button class="pill ghost" id="mHelp">❓ 玩法说明</button>
+          <button class="pill ghost" id="mSound"><span id="mSoundTxt">🔊 音效 · 开</span></button>
+        </div>
+      </div>
+      <div class="overlay" id="overlay">
+        <div class="ov-msg" id="ovMsg"></div>
+        <div class="ov-sub" id="ovSub"></div>
+        <div class="rank" id="rankList"></div>
+        <div class="ov-btns" id="ovBtns"></div>
+      </div>
+      <div class="overlay" id="helpOv">
+        <div class="ov-msg">玩法说明</div>
+        <div class="help-card">
+          <b>操作</b>：点屏 / 空格扇翅，穿过柱子 +1 分<br>
+          <b>难度</b>：分数越高管子越快、缝越窄；15 分后柱子会上下移动<br>
+          <b>道具</b>：⭐ +2 分 · 🛡 挡一次撞击 · ✖️2 十二秒双倍分<br>
+          <b>任务</b>：隔一阵发一个限时任务，完成 +3 分<br>
+          <b>🐤 形象 / 🖼 封面</b>：开局页面可切换
+        </div>
+        <div class="ov-btns"><button class="pill" id="helpClose">知道了</button></div>
+      </div>
+    </div>
+  </div>
+  <div class="hint">点屏 / 空格扇翅 · 穿过柱子得分</div>
+
+<script>
+(function () {
+  'use strict';
+  // ---------- 主题 ----------
+  try {
+    var t = localStorage.getItem('pg-theme') || 'light';
+    document.documentElement.dataset.theme = t === 'auto' ? 'light' : t;
+  } catch (e) {}
+
+  var bridge = window.AndroidBridge || null;
+  var bird = document.getElementById('bird');
+  var container = document.getElementById('game-container');
+  var overlay = document.getElementById('overlay'), ovMsg = document.getElementById('ovMsg'),
+      ovSub = document.getElementById('ovSub'), ovBtns = document.getElementById('ovBtns'),
+      rankList = document.getElementById('rankList');
+  var scoreEl = document.getElementById('scoreEl'), bestEl = document.getElementById('bestEl');
+  var scoreDisplay = document.getElementById('score-display');
+
+  var birdY = 0, birdVelocity = 0, gravity = 0.4, jumpStrength = -7;
+  var dead = false, paused = false, started = false;
+  var score = 0, best = 0;
+  var gameLoop = null, pipeGen = null;
+  var PIPE_SPEED = 4, PIPE_GAP = 170;
+  var pipeSpawnRate = 1800;
+
+  var soundOn = true;
+  try { soundOn = localStorage.getItem('flappy-sound') !== '0'; } catch (e) {}
+  try { best = +(localStorage.getItem('flappy-best') || 0); } catch (e) {}
+  bestEl.textContent = best;
+
+  // ---------- 皮肤 ----------
+  var SKINS = [
+    { b: '#f4d03f', w: '#e1c339', n: '小黄' },
+    { b: '#6fb7e8', w: '#4a90c2', n: '蓝蓝' },
+    { b: '#e88fa5', w: '#d16a82', n: '粉粉' },
+    { b: '#8fce7f', w: '#5d9151', n: '绿绿' }
+  ];
+  var skinIdx = 0;
+  try { skinIdx = Math.min(SKINS.length - 1, +(localStorage.getItem('flappy-skin') || 0)); } catch (e) {}
+  function applySkin() {
+    var s = SKINS[skinIdx];
+    bird.style.backgroundColor = s.b;
+    bird.querySelector('.wing').style.background = s.w;
+    try { localStorage.setItem('flappy-skin', skinIdx); } catch (e) {}
+  }
+  applySkin();
+
+  // ---------- 道具 / 任务 / 每日挑战 ----------
+  var shield = false, x2Until = 0;
+  var rng = Math.random;
+  var missionEl = document.getElementById('mission');
+  var dblEl = document.getElementById('dblEl');
+  var mission = null, nextMissionAt = 0;
+  var helping = false;
+
+  var MISSION_POOL = [
+    { type: 'pass',    n: 3, dur: 15, text: '15 秒内过 3 柱' },
+    { type: 'pass',    n: 5, dur: 25, text: '25 秒内过 5 柱' },
+    { type: 'item',    n: 1, dur: 20, text: '20 秒内拿到 1 个道具' },
+    { type: 'survive', n: 20,dur: 20, text: '存活 20 秒' },
+    { type: 'score',   n: 5, dur: 30, text: '30 秒内拿 5 分' },
+    { type: 'pass',    n: 8, dur: 40, text: '40 秒内过 8 柱' }
+  ];
+  function missionTick() {
+    var now = Date.now();
+    if (!mission) {
+      if (now >= nextMissionAt) {
+        var m = MISSION_POOL[Math.floor(Math.random() * MISSION_POOL.length)];
+        mission = { type: m.type, need: m.n, progress: 0, base: score, start: now, until: now + m.dur * 1000, text: m.text };
+        missionEl.textContent = '🎯 ' + m.text;
+        missionEl.classList.add('show');
+      }
+      return;
+    }
+    if (mission.type === 'survive') mission.progress = (now - mission.start) / 1000;
+    if (mission.type === 'score') mission.progress = score - mission.base;
+    var left = Math.ceil((mission.until - now) / 1000);
+    if (mission.progress >= mission.need) {
+      score += 3; scoreEl.textContent = score; scoreDisplay.innerText = score;
+      if (score > best) { best = score; bestEl.textContent = best; }
+      missionEl.textContent = '✅ 任务完成 +3';
+      mission = null; nextMissionAt = now + 35000 + Math.random() * 15000;
+      beep(1200, .15);
+      setTimeout(function () { missionEl.classList.remove('show'); }, 2500);
+    } else if (now > mission.until) {
+      missionEl.textContent = '❌ 任务失败';
+      mission = null; nextMissionAt = now + 35000 + Math.random() * 15000;
+      setTimeout(function () { missionEl.classList.remove('show'); }, 2500);
+    } else {
+      missionEl.textContent = '🎯 ' + mission.text + '（剩 ' + left + 's）';
+    }
+  }
+  function collectItem(el) {
+    var kind = el.dataset.kind;
+    el.remove();
+    if (kind === 'star') { score += 2; beep(1180, .08); }
+    else if (kind === 'shield') { shield = true; bird.classList.add('shielded'); beep(660, .12, 'triangle'); }
+    else { x2Until = Date.now() + 12000; beep(980, .12, 'square', .05); }
+    scoreEl.textContent = score; scoreDisplay.innerText = score;
+    if (score > best) { best = score; bestEl.textContent = best; }
+    if (mission && mission.type === 'item') mission.progress++;
+  }
+
+  var actx = null;
+  function pgv(){var v=parseFloat(localStorage.getItem("pg_volume"));return isNaN(v)?1:v/100;}
+  function beep(f, dur, type, vol) {
+    if (!soundOn) return;
+    try {
+      if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
+      var o = actx.createOscillator(), g = actx.createGain();
+      o.type = type || 'sine'; o.frequency.value = f;
+      g.gain.setValueAtTime(Math.min(1, (vol || .08) * 3.4 * pgv()), actx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.0001, actx.currentTime + (dur || .1));
+      o.connect(g); g.connect(actx.destination);
+      o.start(); o.stop(actx.currentTime + (dur || .1));
+    } catch (e) {}
+  }
+  function vib(ms) { try { if (bridge && bridge.vibrate) bridge.vibrate(ms); else navigator.vibrate(ms); } catch (e) {} }
+
+  function startGame() {
+    birdY = container.clientHeight * .4;
+    birdVelocity = 0; dead = false; paused = false; score = 0;
+    PIPE_SPEED = 4; PIPE_GAP = 170;
+    shield = false; x2Until = 0; helping = false;
+    bird.classList.remove('shielded');
+    mission = null; nextMissionAt = Date.now() + 8000;
+    missionEl.classList.remove('show');
+    dblEl.classList.remove('show');
+    rng = Math.random;
+    scoreEl.textContent = '0'; scoreDisplay.innerText = '0';
+    overlay.classList.remove('show');
+    document.getElementById('helpOv').classList.remove('show');
+    rankList.classList.remove('show'); rankList.innerHTML = '';
+    var pipes = container.querySelectorAll('.pipe, .item');
+    for (var i = 0; i < pipes.length; i++) pipes[i].remove();
+    bird.style.top = birdY + 'px';
+    bird.style.transform = 'rotate(0deg)';
+    clearInterval(gameLoop); clearInterval(pipeGen);
+    gameLoop = setInterval(updateGame, 20);
+    pipeGen = setInterval(createPipe, pipeSpawnRate);
+    started = true;
+  }
+
+  function jump() {
+    if (!started || dead || paused || helping) return;
+    birdVelocity = jumpStrength;
+    beep(520, .07, 'triangle', .07);
+  }
+
+  var ITEM_KINDS = [['⭐', 'star'], ['🛡', 'shield'], ['✖2', 'double']];
+  function createPipe() {
+    if (dead || paused || helping) return;
+    var groundH = 40, avail = container.clientHeight - groundH;
+    var minH = 50;
+    var maxTop = avail - PIPE_GAP - minH;
+    if (maxTop <= minH) return;
+    var topH = Math.floor(rng() * (maxTop - minH + 1)) + minH;
+    var spawnX = container.clientWidth;
+
+    var pt = document.createElement('div');
+    pt.className = 'pipe pipe-top';
+    pt.style.height = topH + 'px'; pt.style.top = '0'; pt.style.left = spawnX + 'px';
+    var pb = document.createElement('div');
+    pb.className = 'pipe pipe-bottom';
+    pb.style.height = (avail - topH - PIPE_GAP) + 'px';
+    pb.style.bottom = groundH + 'px'; pb.style.left = spawnX + 'px';
+    container.appendChild(pt); container.appendChild(pb);
+    pt.passed = false;
+    pt._pb = pb; pb._pt = pt;
+    pt._avail = avail; pt._gap = PIPE_GAP; pt._base = topH; pt._dy = 0;
+    // 15 分后部分柱子上下缓动
+    pt._amp = score >= 15 && rng() < 0.6 ? 22 : 0;
+    pt._phase = rng() * 6.28;
+
+    // 约 40% 在缝隙里飘道具
+    if (rng() < 0.4) {
+      var k = ITEM_KINDS[Math.floor(rng() * ITEM_KINDS.length)];
+      var it = document.createElement('div');
+      it.className = 'item'; it.dataset.kind = k[1]; it.textContent = k[0];
+      it.style.left = (spawnX + 12) + 'px';
+      it._baseY = topH + PIPE_GAP / 2 - 15; it._pt = pt;
+      it.style.top = it._baseY + 'px';
+      container.appendChild(it);
+    }
+  }
+
+  function updateGame() {
+    if (paused || dead || helping) return;
+    dblEl.classList.toggle('show', Date.now() < x2Until);
+    missionTick();
+    birdVelocity += gravity;
+    birdY += birdVelocity;
+    bird.style.top = birdY + 'px';
+    var rot = Math.min(Math.max(birdVelocity * 4, -30), 90);
+    bird.style.transform = 'rotate(' + rot + 'deg)';
+
+    var bRect = bird.getBoundingClientRect();
+    var groundH = 40;
+    // birdY/高度都用容器内坐标，避免顶栏偏移导致提前判死
+    if (birdY + bird.offsetHeight >= container.clientHeight - groundH) {
+      if (shield) {
+        shield = false; bird.classList.remove('shielded');
+        birdY = container.clientHeight * .3; birdVelocity = jumpStrength;
+        vib(80); beep(300, .1, 'square');
+      } else { die('💥 落地了'); return; }
+    }
+    if (birdY <= 0) { birdY = 0; birdVelocity = 0; bird.style.top = '0px'; }
+
+    var pipes = container.querySelectorAll('.pipe');
+    for (var i = 0; i < pipes.length; i++) {
+      var p = pipes[i];
+      var left = parseFloat(p.style.left) - PIPE_SPEED;
+      p.style.left = left + 'px';
+      var pr = p.getBoundingClientRect();
+      if (pr.right < 0) { p.remove(); continue; }
+      var pad = 2;
+      if (bRect.left + pad < pr.right && bRect.right - pad > pr.left &&
+          bRect.top + pad < pr.bottom && bRect.bottom - pad > pr.top) {
+        if (shield) {
+          shield = false; bird.classList.remove('shielded');
+          if (p._pb) p._pb.remove(); if (p._pt) p._pt.remove();
+          p.remove(); vib(80); beep(300, .1, 'square');
+          continue;
+        }
+        die('💥 撞柱子了'); return;
+      }
+      if (p.className.indexOf('pipe-top') >= 0) {
+        if (p._amp) {
+          p._dy = Math.round(Math.sin(Date.now() / 700 + p._phase) * p._amp);
+          p.style.height = (p._base + p._dy) + 'px';
+          p._pb.style.height = (p._avail - p._base - p._dy - p._gap) + 'px';
+        }
+        if (!p.passed && pr.right < bRect.left) {
+          score += (Date.now() < x2Until) ? 2 : 1;
+          scoreEl.textContent = score; scoreDisplay.innerText = score;
+          if (score > best) { best = score; bestEl.textContent = best; }
+          p.passed = true;
+          beep(880, .06);
+          // 难度递增：速度缓慢上升、缝隙缓慢收窄（最窄留足 3 倍鸟高）
+          PIPE_SPEED = Math.min(6.5, 4 + score * 0.06);
+          PIPE_GAP = Math.max(120, 170 - score * 1.2);
+          if (mission && mission.type === 'pass') mission.progress++;
+        }
+      }
+    }
+
+    var its = container.querySelectorAll('.item');
+    for (var j = 0; j < its.length; j++) {
+      var it = its[j];
+      var il = parseFloat(it.style.left) - PIPE_SPEED;
+      it.style.left = il + 'px';
+      if (it._pt && it._pt._amp) it.style.top = (it._baseY + it._pt._dy) + 'px';
+      var ir = it.getBoundingClientRect();
+      if (ir.right < 0) { it.remove(); continue; }
+      if (bRect.left < ir.right && bRect.right > ir.left &&
+          bRect.top < ir.bottom && bRect.bottom > ir.top) {
+        collectItem(it);
+      }
+    }
+  }
+
+  function die(msg) {
+    if (dead) return;
+    dead = true;
+    clearInterval(gameLoop); clearInterval(pipeGen);
+    vib(200); beep(160, .35, 'sawtooth', .12);
+    bird.style.transform = 'rotate(90deg)';
+    try { localStorage.setItem('flappy-best', best); } catch (e) {}
+    ovMsg.textContent = msg;
+    ovSub.textContent = '得分 ' + score + ' · 最高 ' + best;
+    missionEl.classList.remove('show');
+    // 排行榜：本机前十（普通/每日分开）
+    var rankKey = 'flappy-rank';
+    var rk = [];
+    try { rk = JSON.parse(localStorage.getItem(rankKey) || '[]'); } catch (e) {}
+    var me = { s: score, t: Date.now() };
+    rk.push(me); rk.sort(function (a, b) { return b.s - a.s; });
+    var myIdx = rk.indexOf(me);
+    rk = rk.slice(0, 10);
+    try { localStorage.setItem(rankKey, JSON.stringify(rk)); } catch (e) {}
+    var medals = ['🥇', '🥈', '🥉'], rh = '<div class="rt">🏆 排行榜</div>';
+    rk.forEach(function (e, i) {
+      var dt = new Date(e.t), ds = (dt.getMonth() + 1) + '/' + dt.getDate();
+      rh += '<div class="' + (i === myIdx ? 'rr me' : 'rr') + '"><span>' + (medals[i] || (i + 1) + '.') +
+        (i === myIdx ? ' 本次' : '') + '</span><span class="rs">' + e.s +
+        '</span><span style="opacity:.6">' + ds + '</span></div>';
+    });
+    rankList.innerHTML = rh;
+    rankList.classList.add('show');
+    ovBtns.innerHTML = '';
+    var again = document.createElement('button');
+    again.className = 'pill'; again.textContent = '再来一局';
+    again.onclick = function (e) { e.stopPropagation(); startGame(); };
+    var share = document.createElement('button');
+    share.className = 'pill'; share.textContent = '分享战绩';
+    share.onclick = function (e) {
+      e.stopPropagation();
+      var text = '我在「一隅」Flappy 小鸟过了 ' + score + ' 关！';
+      if (bridge && bridge.shareScore) { bridge.shareScore(text); return; }
+      try { navigator.clipboard.writeText(text); share.textContent = '已复制'; } catch (e2) {}
+    };
+    var home = document.createElement('button');
+    home.className = 'pill ghost'; home.textContent = '主页';
+    home.onclick = function (e) {
+      e.stopPropagation();
+      overlay.classList.remove('show'); started = false;
+      startOv.classList.add('show');
+    };
+    ovBtns.appendChild(again); ovBtns.appendChild(share); ovBtns.appendChild(home);
+    overlay.classList.add('show');
+  }
+
+  function togglePause() {
+    if (!started || dead) return;
+    paused = !paused;
+    if (paused) {
+      ovMsg.textContent = '⏸ 已暂停';
+      ovSub.textContent = '得分 ' + score;
+      ovBtns.innerHTML = '';
+      var r = document.createElement('button');
+      r.className = 'pill'; r.textContent = '继续';
+      r.onclick = function (e) { e.stopPropagation(); togglePause(); };
+      ovBtns.appendChild(r);
+      overlay.classList.add('show');
+    } else {
+      overlay.classList.remove('show');
+    }
+  }
+
+  // ---------- 输入 ----------
+  document.addEventListener('keydown', function (e) {
+    if (e.code === 'Space' || e.code === 'ArrowUp') {
+      e.preventDefault();
+      if (paused) togglePause(); else jump();
+    } else if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') togglePause();
+  });
+  container.addEventListener('touchstart', function (e) {
+    if (!started || dead || paused) return;   // 开始页/结束/暂停时放行，遮罩按钮才能点到
+    e.preventDefault(); jump();
+  }, { passive: false });
+  container.addEventListener('mousedown', function (e) {
+    if (!started || dead || paused) return;
+    jump();
+  });
+
+  document.getElementById('pauseBtn').onclick = function (e) { e.stopPropagation(); if (started) togglePause(); };
+
+  // ---------- 开始页：形象 / 封面 / 说明 / 音效 ----------
+  var startOv = document.getElementById('startOv');
+  var mSkinTxt = document.getElementById('mSkinTxt');
+  var mCoverTxt = document.getElementById('mCoverTxt'), mCoverImg = document.getElementById('mCoverImg');
+  var mSoundTxt = document.getElementById('mSoundTxt');
+  var COVER_ORDER = ['crayon', 'pixel', 'orig'];
+  var COVER_NAMES = { crayon: '蜡笔小鸟', pixel: '像素小鸟', orig: '经典' };
+  var COVER_FILES = { crayon: '../../icons/flappy-crayon.png', pixel: '../../icons/flappy-pixel.png', orig: '../../icons/flappy.png' };
+  var coverKey = 'crayon';
+  try { coverKey = localStorage.getItem('flappy-cover') || 'crayon'; } catch (e) {}
+  if (COVER_ORDER.indexOf(coverKey) < 0) coverKey = 'crayon';
+  function paintStartMenu() {
+    mSkinTxt.textContent = '🐤 形象 · ' + SKINS[skinIdx].n;
+    mCoverTxt.textContent = '封面 · ' + COVER_NAMES[coverKey];
+    mCoverImg.src = COVER_FILES[coverKey];
+    mSoundTxt.textContent = (soundOn ? '🔊' : '🔇') + ' 音效 · ' + (soundOn ? '开' : '关');
+  }
+  paintStartMenu();
+  document.getElementById('startBtn').onclick = function (e) {
+    e.stopPropagation();
+    startOv.classList.remove('show');
+    startGame();
+  };
+  document.getElementById('mSkin').onclick = function (e) {
+    e.stopPropagation();
+    skinIdx = (skinIdx + 1) % SKINS.length;
+    applySkin(); paintStartMenu(); beep(760, .06);
+  };
+  document.getElementById('mCover').onclick = function (e) {
+    e.stopPropagation();
+    coverKey = COVER_ORDER[(COVER_ORDER.indexOf(coverKey) + 1) % COVER_ORDER.length];
+    try { localStorage.setItem('flappy-cover', coverKey); } catch (e2) {}
+    paintStartMenu(); beep(920, .06);
+  };
+  var helpOv = document.getElementById('helpOv');
+  document.getElementById('mHelp').onclick = function (e) {
+    e.stopPropagation(); helpOv.classList.add('show');
+  };
+  document.getElementById('mSound').onclick = function (e) {
+    e.stopPropagation();
+    soundOn = !soundOn;
+    try { localStorage.setItem('flappy-sound', soundOn ? '1' : '0'); } catch (e2) {}
+    paintStartMenu();
+  };
+  document.getElementById('helpClose').onclick = function (e) {
+    e.stopPropagation();
+    helping = false; helpOv.classList.remove('show');
+  };
+  document.getElementById('backBtn').onclick = function (e) {
+    e.stopPropagation();
+    try { if (bridge && bridge.exit) { bridge.exit(); return; } } catch (e2) {}
+    history.back();
+  };
+
+  window.addEventListener('resize', function () {
+    if (dead) return;
+    birdY = bird.offsetTop;   // 相对容器的纵坐标
+  });
+
+  // 打开游戏先停在开始页，点「开始游戏」才进局
+})();
+</script>
+</body>
+</html>

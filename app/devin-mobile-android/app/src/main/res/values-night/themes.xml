@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.DevinMobile" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:statusBarColor">#0F0F10</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:colorBackground">#0F0F10</item>
+        <item name="colorSurface">#0F0F10</item>
+        <item name="colorSurfaceVariant">#26262C</item>
+        <item name="bubbleUserColor">#26262C</item>
+        <item name="bubbleDevinColor">#1F1F24</item>
+        <item name="listTitleColor">#B3A8F5</item>
+    </style>
+</resources>

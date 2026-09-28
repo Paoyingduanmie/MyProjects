@@ -1,0 +1,837 @@
+{
+  "versionCode": 167,
+  "versionName": "3.54",
+  "apkUrl": "https://gitlab.com/moonnancy881-dotcom/myprojects/-/raw/main/app/dist/app-debug.apk",
+  "notes": "修排队消息残留：已发出的排队消息在历史回放路径也清队，且匹配时剥离附件块——之前实况被去重跳过或文本带附件时队列残留",
+  "history": [
+    {
+      "versionCode": 167,
+      "versionName": "3.54",
+      "date": "2026-09-28",
+      "notes": "修排队消息残留：已发出的排队消息在历史回放路径也清队，且匹配时剥离附件块——之前实况被去重跳过或文本带附件时队列残留"
+    },
+    {
+      "versionCode": 166,
+      "versionName": "3.53",
+      "date": "2026-09-28",
+      "notes": "修重复弹窗：会话完成任务后闲置被退出时不再误报第二次「任务已完成」——退出只在干活中→退出时才算完成提醒"
+    },
+    {
+      "versionCode": 165,
+      "versionName": "3.52",
+      "date": "2026-09-26",
+      "notes": "修多余弹窗：正在看的会话完成时不再弹「查看」让你跳自己——同批其它会话提醒照常；悬浮窗同理不再为该会话弹胶囊卡"
+    },
+    {
+      "versionCode": 164,
+      "versionName": "3.51",
+      "date": "2026-09-26",
+      "notes": "修完成提醒偶尔只进通知栏不弹窗：悬浮窗必须主线程挂载，后台轮询触发时异常被吞——强制切主线程再挂"
+    },
+    {
+      "versionCode": 163,
+      "versionName": "3.50",
+      "date": "2026-09-26",
+      "notes": "完成提醒判定重做：不再靠采到 working 中间态，改成「会话更新时间戳前进+当前是终结态」——秒完成的短任务不漏弹；会话页实时态仍按真迁移报"
+    },
+    {
+      "versionCode": 162,
+      "versionName": "3.49",
+      "date": "2026-09-26",
+      "notes": "修完成提醒漏弹：秒完成的短任务（working→完成落在两次轮询间）之前会被漏掉——兜底轮询 60s→30s，且会话页实时状态直接喂检测层，看哪个会话就漏不了它的提醒"
+    },
+    {
+      "versionCode": 161,
+      "versionName": "3.48",
+      "date": "2026-09-26",
+      "notes": "悬浮窗多条提醒改竖排叠放——各管各的跳会话/✕ 关闭，不再互相顶掉；同会话重复弹去重，最多叠 4 条新的压掉最旧的"
+    },
+    {
+      "versionCode": 160,
+      "versionName": "3.47",
+      "date": "2026-09-26",
+      "notes": "悬浮窗提醒改成极简胶囊条：一行「状态点 + 状态·会话名」+ 右侧 ✕ 关闭；点条身直达会话（多个任务更新时跳列表）"
+    },
+    {
+      "versionCode": 159,
+      "versionName": "3.46",
+      "date": "2026-09-26",
+      "notes": "八项优化：清除缓存可清音视频子目录；下载先落 .tmp 再改名，半截文件不再被当缓存；缓存文件名改全量编码防碰撞；多个任务同时更新合并成一条提醒不叠窗；迁移检测挪公共层，直进会话也收完成提醒；设置页加「后台弹窗权限」可重开悬浮窗；音视频缓存目录改名 media；清理语音相关残留"
+    },
+    {
+      "versionCode": 158,
+      "versionName": "3.45",
+      "notes": "后台悬浮窗提醒：app 退后台时任务完成/被阻在任意应用上方弹卡片（需一次「显示在其他应用上层」权限，首次进列表会引导开启）"
+    },
+    {
+      "versionCode": 157,
+      "versionName": "3.44",
+      "notes": "任务完成/被阻加应用内弹窗：app 开着时直接弹模态卡（不点不消失），「查看」直达会话——通知栏横幅容易错过的问题补齐"
+    },
+    {
+      "versionCode": 156,
+      "versionName": "3.43",
+      "notes": "移除麦克风/语音输入：会话页麦克风钮、新建页语音输入行、语音弹层和录音权限全部去掉"
+    },
+    {
+      "versionCode": 155,
+      "versionName": "3.42",
+      "notes": "发送键改紫底白「发送」文字钮：空闲显示发送、任务在跑时显示「排队」（点了进排队消息不打断执行）"
+    },
+    {
+      "versionCode": 154,
+      "versionName": "3.41",
+      "notes": "定时任务可选目标：新会话（每次新开）或指定会话（每次往同一会话发消息，不再一天一个新会话）"
+    },
+    {
+      "versionCode": 153,
+      "versionName": "3.40",
+      "notes": "定时任务可创建：定时任务页右上角 + 新建（名称+任务内容+每天/每周/每月/仅一次+时间），点行弹菜单可启用/停用/删除"
+    },
+    {
+      "versionCode": 152,
+      "versionName": "3.39",
+      "notes": "图片点开秒显：查看页复用行内缩略图已下载的 Coil 磁盘缓存（同 key），不再重新联网下载原图（模拟器实测）"
+    },
+    {
+      "versionCode": 151,
+      "versionName": "3.38",
+      "notes": "右上角跳内置播放页秒播：优先读行内已下的本地缓存文件（经伪 https 主机回送给 WebView，file:// 会被拦），不再联网重载（模拟器实测）"
+    },
+    {
+      "versionCode": 150,
+      "versionName": "3.37",
+      "notes": "修视频播放中被打断：消息流式更新触发的瞬时 detach/重排不再杀掉播放（延迟600ms判定真滚出才停）；计时循环加容错不被过渡态 getter 异常打死；文件名行点击=行内播放，仅右上钮跳外部播放器（模拟器实测）"
+    },
+    {
+      "versionCode": 149,
+      "versionName": "3.36",
+      "notes": "视频行内播放：画面直接播/暂停+右下计时，右上小钮才跳外部播放器（模拟器实测）"
+    },
+    {
+      "versionCode": 148,
+      "versionName": "3.35",
+      "notes": "音频改本地缓存播放：秒开可重播、同条再点立即暂停/继续、准备中再点取消不卡死（模拟器实测）"
+    },
+    {
+      "versionCode": 147,
+      "versionName": "3.34",
+      "notes": "修音频播放中无暂停/计时：getDuration 在 prepare 中触发错误监听清掉播放态，现准备期不调用、错误-38 忽略（模拟器实测）"
+    },
+    {
+      "versionCode": 146,
+      "versionName": "3.33",
+      "notes": "修音频播放中无暂停/计时：准备中连点不崩溃、行重建恢复计时、播放协程防死"
+    },
+    {
+      "versionCode": 145,
+      "versionName": "3.32",
+      "notes": "音频行常驻显示总时长（后台取元数据缓存）；播放中显已播/总时长"
+    },
+    {
+      "versionCode": 144,
+      "versionName": "3.31",
+      "notes": "会话页麦克风挪到输入框右边、发送键左边"
+    },
+    {
+      "versionCode": 143,
+      "versionName": "3.30",
+      "notes": "音频播放/暂停改矢量图标（部分机型 ⏸ 字符不渲染），着色跟正文色"
+    },
+    {
+      "versionCode": 142,
+      "versionName": "3.29",
+      "notes": "音频附件播放钮挪到行右边，文件名/时长在左"
+    },
+    {
+      "versionCode": 141,
+      "versionName": "3.28",
+      "notes": "语音改长按说话（微信式）：按住说、松开发送，单次会话不再连续监听，修客户端错误/丢字"
+    },
+    {
+      "versionCode": 140,
+      "versionName": "3.27",
+      "notes": "修语音客户端错误：每段监听销毁重建识别器，不再续用已结束会话；连续失败 3 次才报错"
+    },
+    {
+      "versionCode": 139,
+      "versionName": "3.26",
+      "notes": "语音错误显示具体原因；不支持离线/网络错误自动关离线优先重试；连续监听间留 400ms 喘息"
+    },
+    {
+      "versionCode": 138,
+      "versionName": "3.25",
+      "notes": "语音识别显式中文提高准确率；临时结果兜底收进文本，说完半截被打断不再丢"
+    },
+    {
+      "versionCode": 137,
+      "versionName": "3.24",
+      "notes": "MP3 等音频附件行内播放：点即播/暂停+进度，一次只播一个"
+    },
+    {
+      "versionCode": 136,
+      "versionName": "3.23",
+      "notes": "语音改持续监听累加模式，不再自动收尾；加优先离线+拉长静音判停"
+    },
+    {
+      "versionCode": 135,
+      "versionName": "3.22",
+      "notes": "语音卡片位置上抬，浮在输入区上方"
+    },
+    {
+      "versionCode": 134,
+      "versionName": "3.21",
+      "notes": "语音弹层改底部浮动圆角卡片，取消按钮可见"
+    },
+    {
+      "versionCode": 133,
+      "versionName": "3.20",
+      "notes": "热修：麦克风图标钮类型不匹配导致进会话闪退"
+    },
+    {
+      "versionCode": 132,
+      "versionName": "3.19",
+      "notes": "语音输入改自定义弹层：脉动麦克风+实时识别文字+完成取消，替换系统丑弹窗"
+    },
+    {
+      "versionCode": 131,
+      "versionName": "3.18",
+      "notes": "语音输入按钮换 Material 麦克风矢量图标"
+    },
+    {
+      "versionCode": 130,
+      "versionName": "3.17",
+      "notes": "任务完成/被阻弹通知点直达；会话页+新建页加语音输入"
+    },
+    {
+      "versionCode": 129,
+      "versionName": "3.16",
+      "notes": "启动后自动预拉前 3 个会话的消息写进本地缓存，进会话秒显"
+    },
+    {
+      "versionCode": 128,
+      "versionName": "3.15",
+      "notes": "副标题最新一条本地缓存，进列表直接显上次值不再先闪首条"
+    },
+    {
+      "versionCode": 127,
+      "versionName": "3.14",
+      "notes": "会话列表标题改主题色（浅色紫/暖色琥珀/深色淡紫）"
+    },
+    {
+      "versionCode": 126,
+      "versionName": "3.13",
+      "notes": "状态标志挪到标题行右侧；标题加粗加大与副文拉开层级"
+    },
+    {
+      "versionCode": 125,
+      "versionName": "3.12",
+      "notes": "修进会话落顶部：程序化滚动不再污染贴底标记，进场稳定落底"
+    },
+    {
+      "versionCode": 124,
+      "versionName": "3.11",
+      "notes": "到顶且还有更早历史时自动向上补载填满屏幕；顺带修重连空窗拉空清掉翻页游标"
+    },
+    {
+      "versionCode": 123,
+      "versionName": "3.10",
+      "notes": "内容不足一屏时改顶部锚定，修折叠后顶部整片空白"
+    },
+    {
+      "versionCode": 122,
+      "versionName": "3.9",
+      "notes": "会话列表副标题显示最新一条消息（任务/回复）；上滚立即解除贴底，新内容不再把人拽回底"
+    },
+    {
+      "versionCode": 121,
+      "versionName": "3.8",
+      "notes": "多选选项卡：选项可勾选（再点取消），底部提交按钮一起发送；PWA 同步"
+    },
+    {
+      "versionCode": 120,
+      "versionName": "3.7",
+      "notes": "批准卡答完同样保留按钮，选中项实心高亮加✓、其余变淡不可点"
+    },
+    {
+      "versionCode": 119,
+      "versionName": "3.6",
+      "notes": "选项卡答完后保留选项，选中的实心高亮加✓、其余变淡不可点"
+    },
+    {
+      "versionCode": 118,
+      "versionName": "3.5",
+      "notes": "选项卡按钮文字改左对齐"
+    },
+    {
+      "versionCode": 117,
+      "versionName": "3.4",
+      "notes": "选项卡改竖排，长文本选项不再挤出屏外"
+    },
+    {
+      "versionCode": 116,
+      "versionName": "3.3",
+      "notes": "修复选项卡不渲染——ACP 先推消息导致提问事件被去重吞掉"
+    },
+    {
+      "versionCode": 115,
+      "versionName": "3.2",
+      "notes": "轮询模式侧边栏不再混入已删除的幽灵会话（按上次 ACP 真列表过滤）"
+    },
+    {
+      "versionCode": 114,
+      "versionName": "3.1",
+      "notes": "侧边栏改用 ACP 真列表（对齐网页端），不再混入已删除的幽灵会话"
+    },
+    {
+      "versionCode": 113,
+      "versionName": "3.0",
+      "notes": "边缘左滑开侧边栏也触发加载（原来只有点把手才拉，划开永远空白）"
+    },
+    {
+      "versionCode": 112,
+      "versionName": "2.99",
+      "notes": "侧边栏开抽屉先显本地缓存再刷新，秒出不等网络；通知改「Devin 后台运行中（保活）」"
+    },
+    {
+      "versionCode": 111,
+      "versionName": "2.98",
+      "notes": "常驻通知文案改为「Devin 后台运行中」"
+    },
+    {
+      "versionCode": 110,
+      "versionName": "2.97",
+      "notes": "侧边栏 REST/ACP 并发拉取先到先显示，空态显示具体失败原因"
+    },
+    {
+      "versionCode": 109,
+      "versionName": "2.96",
+      "notes": "侧边栏拉取三级兜底 REST→ACP→缓存，空态直接显示原因"
+    },
+    {
+      "versionCode": 108,
+      "versionName": "2.95",
+      "notes": "侧边栏标题改名；抽屉拉取失败回退本地缓存并提示原因"
+    },
+    {
+      "versionCode": 107,
+      "versionName": "2.94",
+      "notes": "会话抽屉直接走 REST 拉全部会话，修 ACP 死连接挂起导致抽屉空白"
+    },
+    {
+      "versionCode": 106,
+      "versionName": "2.93",
+      "notes": "用量统计/定时任务在 v1 key 下自动用 PAT 拉取"
+    },
+    {
+      "versionCode": 105,
+      "versionName": "2.92",
+      "notes": "设置页用量统计+会话抽屉定时任务列表"
+    },
+    {
+      "versionCode": 104,
+      "versionName": "2.91",
+      "notes": "首载事件80条+markdown渲染缓存+暂存会话新消息瞬时通知"
+    },
+    {
+      "versionCode": 103,
+      "versionName": "2.90",
+      "notes": "排队消息已发送后仍残留的修复"
+    },
+    {
+      "versionCode": 102,
+      "versionName": "2.89",
+      "notes": "浅色主题改米白色（PWA 同步调色）"
+    },
+    {
+      "versionCode": 101,
+      "versionName": "2.88",
+      "notes": "事件轮询改增量拉取+终结态降频+WS心跳30s+状态行居中"
+    },
+    {
+      "versionCode": 100,
+      "versionName": "2.87",
+      "notes": "更新记录页缓存远端 history——打开秒显缓存，只增量插入新版本条目"
+    },
+    {
+      "versionCode": 99,
+      "versionName": "2.86",
+      "notes": "修复消息重复——chunk 事件级去重（尾部重放不再追加副本）"
+    },
+    {
+      "versionCode": 98,
+      "versionName": "2.85",
+      "notes": "移除设置页 @ 弹层 skills 列表行"
+    },
+    {
+      "versionCode": 97,
+      "versionName": "2.84",
+      "notes": "更新记录页改为从远端 version.json 的 history 实时拉取全量版本记录（本地静态清单只到 v2.63、不再维护，留作离线兜底）。"
+    },
+    {
+      "versionCode": 96,
+      "versionName": "2.83",
+      "notes": "新建会话页「会话代理」行面板同步显示解析后的默认模式（此前只下拉选项里显示「默认（Swe-2-High）」，行面板一直停在「默认（org 设置）」）。"
+    },
+    {
+      "versionCode": 95,
+      "versionName": "2.82",
+      "notes": "APK 体积优化：开启 R8 代码压缩 + 资源裁剪，安装包 7.2MB → 3.5MB（小约一半）；功能不变。"
+    },
+    {
+      "versionCode": 94,
+      "versionName": "2.81",
+      "notes": "更新提示显示所有跳过版本的更新说明（按版本倒序列出，不再只看最新一条）。"
+    },
+    {
+      "versionCode": 93,
+      "versionName": "2.80",
+      "notes": "修复消息重复和乱序：密集历史回放按事件时间戳归位（不再一律插到首个实况条目前），同文消息按全文配对去重——同一条消息不再出现两次，新消息不再排到旧实况上方。"
+    },
+    {
+      "versionCode": 92,
+      "versionName": "2.79",
+      "notes": "会话页滚动流畅度优化：消息分组+文本签名+DiffUtil 从主线程挪到后台线程，流式期间每次事件不再整帧卡住；签名改用 text.hashCode 缓存，长会话快速上下滑不再卡顿。"
+    },
+    {
+      "versionCode": 91,
+      "versionName": "2.78",
+      "notes": "@ 弹层 skills 列表补入自定义 skill（狗头军师、glill me）；设置页新增「@ 弹层 skills 列表」可自行增删；PWA 同步。"
+    },
+    {
+      "versionCode": 90,
+      "versionName": "2.77",
+      "notes": "输入框 @ 弹层：打 @ 弹出 skills/playbooks/会话列表，选中自动插入 @skills:名、@playbook:id、@devin-会话 引用；PWA 同步。skills 列表用内置种子（服务端无可枚举接口，可在设置自定义）。"
+    },
+    {
+      "versionCode": 89,
+      "versionName": "2.76",
+      "notes": "后台返回断联修复：死 socket 上发送失败立即判定断开并重连（原来干等 30 秒 rpc 超时才降级）；重连中首个请求失败缓 2.5 秒重试再降级，减少误报「连接失败」掉到轮询模式。"
+    },
+    {
+      "versionCode": 88,
+      "versionName": "2.75",
+      "notes": "修复消息附件实时渲染：ACP 实况消息文本缺附件块，密集历史补拉完整文本时被事件去重丢弃，图片要等重启才显示——现在去重时补齐完整文本，图片即时渲染。"
+    },
+    {
+      "versionCode": 87,
+      "versionName": "2.74",
+      "notes": "新图标（暖米底黑D金点）；品牌化开屏动画（图标弹入+字标渐显+呼吸点，列表就绪后淡出）；消息图片点开全屏查看器，双指缩放/双击放大/拖动平移；图片加载失败点击自动重试；附件URL尾部参数识别修复。"
+    },
+    {
+      "versionCode": 86,
+      "versionName": "2.73",
+      "notes": "暂存超时放宽到 30 分钟（仍为最多 5 个会话）。"
+    },
+    {
+      "versionCode": 85,
+      "versionName": "2.72",
+      "notes": "暂存放宽：最多 5 个会话、15 分钟自动关闭。"
+    },
+    {
+      "versionCode": 84,
+      "versionName": "2.71",
+      "notes": "多会话暂存：连接暂存从单槽扩到最近 3 个会话，A→B→A 来回切都秒开；每个会话仍保留 10 分钟、期间持续收事件。"
+    },
+    {
+      "versionCode": 83,
+      "versionName": "2.70",
+      "notes": "修复切回会话时模型/agent chips 闪烁消失：resume 拿不到 configOptions 时不再清空缓存配置，拿到非空值才替换。"
+    },
+    {
+      "versionCode": 82,
+      "versionName": "2.69",
+      "notes": "暂存期间继续接收事件：切走的会话后台照常收 session/update 写进缓存，回切时新事件和模型/agent chips 已就位不再重新加载。"
+    },
+    {
+      "versionCode": 81,
+      "versionName": "2.68",
+      "notes": "切会话保活：离开会话页时 ACP 连接暂存 10 分钟，期间云端照常运行；10 分钟内切回同会话秒开（不重连不重载），超时自动释放。"
+    },
+    {
+      "versionCode": 80,
+      "versionName": "2.67",
+      "notes": "新增选项卡（选项问题）：REST 事件流的 user_question 渲染为高亮可选卡，点选项把文本发给会话即等同回答；别处处理过的卡自动标记已选择。PWA 同步。"
+    },
+    {
+      "versionCode": 79,
+      "versionName": "2.66",
+      "notes": "收紧待处理交互卡尺寸：按钮高 30dp、卡片边距/圆角收窄，视觉保持高亮但不再臃肿。"
+    },
+    {
+      "versionCode": 78,
+      "versionName": "2.65",
+      "notes": "待处理交互卡（权限/secret/plan 审批）加暖黄底+琥珀描边高亮，批准按钮实心主题色；已处理卡保持低调。PWA 同步。"
+    },
+    {
+      "versionCode": 77,
+      "versionName": "2.64",
+      "notes": "云端审批卡：permission_request 事件渲染为批准/拒绝卡，回执 _cognition.ai/permission/respond；修复原地更新不重绑（翻牌/工具状态/流式文本实时刷新）。"
+    },
+    {
+      "versionCode": 76,
+      "versionName": "2.63",
+      "notes": "停止按钮改为 session/cancel：只打断 Devin 当前轮次（与 web 输入框右下角 ■ 一致），会话保持活动可继续发消息；此前误调 _cognition.ai/session/stop 会关停 VM 并标记 done。"
+    },
+    {
+      "versionCode": 75,
+      "versionName": "2.62",
+      "notes": "更新记录页顶部常驻检测状态（有新版本横幅/已是最新）+ 补齐历史条目；权限批准卡兼容 session_id 键名、认不出会话也显示不再静默拒掉。"
+    },
+    {
+      "versionCode": 74,
+      "versionName": "2.61",
+      "notes": "新建页会话代理默认项显示解析结果：用默认模式建过会话后缓存并显示「默认（实际模式）」。"
+    },
+    {
+      "versionCode": 73,
+      "versionName": "2.60",
+      "notes": "修复思考/历史事件错位：增量补齐的事件插到实况条目之前，不再一律追加到末尾。"
+    },
+    {
+      "versionCode": 72,
+      "versionName": "2.59",
+      "notes": "设置页版本号可点击，进入本地更新记录页（含新版本检测横幅）。"
+    },
+    {
+      "versionCode": 71,
+      "versionName": "2.58",
+      "notes": "修复思考流式行永不重置：新一轮思考现在会开新行，不再合并进早先的 thinking 行。"
+    },
+    {
+      "versionCode": 70,
+      "versionName": "2.57",
+      "notes": "设置页新增「后台保连接」开关：开启前台服务后 app 挂后台时 PAT/WS 不再被系统省电掐断。"
+    },
+    {
+      "versionCode": 69,
+      "versionName": "2.56",
+      "notes": "长按 Devin 回复复制；修审查实锤：WS 不关泄漏/越界隐患/发消息凭据混用/PAT 改动不生效/每 bind 建 Regex/chips 反复重建/视频帧失败重抓/抽屉无 PR 徽标。"
+    },
+    {
+      "versionCode": 68,
+      "versionName": "2.55",
+      "notes": "后台轮询改为降频 60s 不停更：回前台不用等重新拉，耗电可忽略。"
+    },
+    {
+      "versionCode": 67,
+      "versionName": "2.54",
+      "notes": "保活心跳跨后台存活：之前 app 一进后台心跳就被取消，现在开着保活切出去刷视频心跳照跳、断线自动重连。"
+    },
+    {
+      "versionCode": 66,
+      "versionName": "2.53",
+      "notes": "流式期重绘合并到 120ms 一次；附件视图同组 URL 不再拆建；会话列表内容没变跳过全量重绑。"
+    },
+    {
+      "versionCode": 65,
+      "versionName": "2.52",
+      "notes": "图片缓存改按附件原 URL 做 key，S3 链接过期刷新后不再重复下载同一张图。"
+    },
+    {
+      "versionCode": 64,
+      "versionName": "2.51",
+      "notes": "新建页平台/代理选择改原地展开下拉（同 web dsel），不再是底部弹层。"
+    },
+    {
+      "versionCode": 63,
+      "versionName": "2.50",
+      "notes": "新建会话页样式对齐 web：返回栏+标题、圆角底框输入/选择行、单个大按钮+提示行。"
+    },
+    {
+      "versionCode": 62,
+      "versionName": "2.49",
+      "notes": "新建会话页对齐 web：平台/会话代理改下拉选择，创建后默认 ACU 上限 2。"
+    },
+    {
+      "versionCode": 61,
+      "versionName": "2.48",
+      "notes": "优化批：更新弹窗显示版本名；消息显示时间戳；markdown 链接可点；新建会话 PAT-v3 兜底。"
+    },
+    {
+      "versionCode": 60,
+      "versionName": "2.47",
+      "notes": "（重新发布）此前版本号 sed 未生效，此包为真 v2.47：删除=归档、连接状态实时化、10s 轮询、更新防 CDN 缓存。"
+    },
+    {
+      "versionCode": 59,
+      "versionName": "2.46",
+      "notes": "会话列表/连接状态轮询间隔统一改 10 秒（原 REST 15s/ACP 30s）。"
+    },
+    {
+      "versionCode": 58,
+      "versionName": "2.45",
+      "notes": "连接状态改为实时事件驱动：ACP/REST 拉取成败即时更新 已连接/未连接，不再只靠进设置页探测。"
+    },
+    {
+      "versionCode": 57,
+      "versionName": "2.44",
+      "notes": "凭证失败态文案：连接失败 → 未连接（4 态：未配置/已配置/未连接/已连接）。"
+    },
+    {
+      "versionCode": 56,
+      "versionName": "2.43",
+      "notes": "删除改归档语义：Devin 无真删除，官方删除即归档；ACP 走 bulkArchive，REST 兜底 v3 archive。"
+    },
+    {
+      "versionCode": 55,
+      "versionName": "2.42",
+      "notes": "删除会话改走 PAT-v3 端点并立即本地移除，不再等下一轮刷新。"
+    },
+    {
+      "versionCode": 54,
+      "versionName": "2.41",
+      "notes": "修复左滑按钮条四个操作（标签/重命名/归档/删除）点了没反应——回调没接线。"
+    },
+    {
+      "versionCode": 53,
+      "versionName": "2.40",
+      "notes": "复审修复：进出会话不再重复注册事件处理器（防事件重复处理/多重断线重试）；视频首帧加内存缓存，滚动不再重复联网抓帧。"
+    },
+    {
+      "versionCode": 52,
+      "versionName": "2.39",
+      "notes": "凭证连接状态持久化：进设置直接显示上次状态（已连接不再闪回已配置），后台静默复核。"
+    },
+    {
+      "versionCode": 51,
+      "versionName": "2.38",
+      "notes": "WS 加 20s 心跳防掐线；PAT 断连后轮询兜底自动改用 PAT-v3（归档/已删会话不再漏出）；断开后每 30s 自动重连恢复实时模式，不用重启。"
+    },
+    {
+      "versionCode": 50,
+      "versionName": "2.37",
+      "notes": "返回钮改标准箭头图标；修复 WS 线程改列表的偶发崩溃隐患、排队消息 dict 形态显示/残留；消息缓存限频写盘；详情轮询与文件夹归属拉取并行化提速。"
+    },
+    {
+      "versionCode": 49,
+      "versionName": "2.36",
+      "notes": "去掉 ☰ 按钮改屏幕左缘 › 拉手开抽屉；返回钮去边框。"
+    },
+    {
+      "versionCode": 48,
+      "versionName": "2.35",
+      "notes": "上滚接近顶端自动加载更早（无限滚动），首条按钮保留作兜底。"
+    },
+    {
+      "versionCode": 47,
+      "versionName": "2.34",
+      "notes": "「加载更早」改为消息流首条（对齐 web：按钮嵌在内容顶部），滚到内容最顶才可见。"
+    },
+    {
+      "versionCode": 46,
+      "versionName": "2.33",
+      "notes": "「加载更早」改为真的上滚到顶才显示（dy<0 到达顶端），不再随进会话就出现。"
+    },
+    {
+      "versionCode": 45,
+      "versionName": "2.32",
+      "notes": "实况会话工具卡补齐：ACP 流不推 tool_call 创建事件，改每 20s 增量拉 iapi 密集事件（eid 去重）；密集事件类型映射补 terminal/git/thoughts 复数。"
+    },
+    {
+      "versionCode": 44,
+      "versionName": "2.31",
+      "notes": "贴底判定改为末条可见即贴底——流式增长时自动滚到底，不再误弹新消息。"
+    },
+    {
+      "versionCode": 43,
+      "versionName": "2.30",
+      "notes": "修复 ☰ 抽屉列出已归档会话：ACP 映射补 archived 字段，提交前统一过滤。"
+    },
+    {
+      "versionCode": 42,
+      "versionName": "2.29",
+      "notes": "上传按钮换细体 + 号；命令子项图标换 >_ 命令提示符样式。"
+    },
+    {
+      "versionCode": 41,
+      "versionName": "2.28",
+      "notes": "折叠组对齐官方：叙述节点下挂命令/思考汇总卡，子项代表性图标；视频预览缩到图片 2/3 并缩小播放钮。"
+    },
+    {
+      "versionCode": 40,
+      "versionName": "2.27",
+      "notes": "图片/视频预览缩到 2/3；视频预览叠半透明圆形播放钮。"
+    },
+    {
+      "versionCode": 39,
+      "versionName": "2.26",
+      "notes": "修复消息文本重复累加：流式 chunk 实际是累计快照不是增量，改为快照感知合并，不再一条消息自我复制多遍。"
+    },
+    {
+      "versionCode": 38,
+      "versionName": "2.25",
+      "notes": "抠掉 ATTACHMENT 三种占位形态（JSON 数组/对象/裸引号 URL）不再残留 url 字样；视频附件抓首帧显示预览图，点开内置播放。"
+    },
+    {
+      "versionCode": 37,
+      "versionName": "2.24",
+      "notes": "修复消息流闪烁：事件更新改用 DiffUtil 局部刷新，不再每秒全屏重绘。"
+    },
+    {
+      "versionCode": 36,
+      "versionName": "2.23",
+      "notes": "修复同一条消息重复渲染多遍：消息按内容去重（eid 不同但内容相同的重复事件跳过），流式 chunk 占位在完整消息到达时移除。"
+    },
+    {
+      "versionCode": 35,
+      "versionName": "2.22",
+      "notes": "修复 S3 附件链接过期后打开显示 AccessDenied：缓存带过期时间，过期自动重新解析；视频改用 <video> 标签内嵌播放。"
+    },
+    {
+      "versionCode": 34,
+      "versionName": "2.21",
+      "notes": "ACP 模式进会话先秒显本地缓存（对齐 web localStorage）；消息实时落盘；列表整行可点+按压波纹，点击不再靠运气。"
+    },
+    {
+      "versionCode": 33,
+      "versionName": "2.20",
+      "notes": "抠掉消息里的 ATTACHMENT:[...] 占位块；视频点击改内置 WebView 播放，不再跳浏览器下载。"
+    },
+    {
+      "versionCode": 32,
+      "versionName": "2.19",
+      "notes": "消息里已渲染成图片/附件的链接不再显示原始 URL 文本。"
+    },
+    {
+      "versionCode": 31,
+      "versionName": "2.18",
+      "notes": "设置页 API key 和 PAT 合并为一行「Devin 凭证」，状态新增「已连接」；修复安装完成后缓存的旧安装包残留不清理的问题。"
+    },
+    {
+      "versionCode": 30,
+      "versionName": "2.17",
+      "notes": "思考/命令事件默认折叠成卡片，点标题行展开；连续命令聚合为一张卡（对齐 web）。"
+    },
+    {
+      "versionCode": 29,
+      "versionName": "2.16",
+      "notes": "暖色主题加深，对齐 web 暖黄配色（背景/气泡/强调色全套）。"
+    },
+    {
+      "versionCode": 28,
+      "versionName": "2.15",
+      "notes": "chips 去掉 agent/platform；停止按钮只在 Devin 真在干活时显示；附件按钮并入输入框。"
+    },
+    {
+      "versionCode": 27,
+      "versionName": "2.14",
+      "notes": "已归档会话不再显示在列表（含缓存）；后台轮询不再一直转圈，仅手动/首次刷新显示转圈。"
+    },
+    {
+      "versionCode": 26,
+      "versionName": "2.13",
+      "notes": "排队消息被消费后自动从排队条移除；发/删/改按钮本地立即同步。"
+    },
+    {
+      "versionCode": 25,
+      "versionName": "2.12",
+      "notes": "消息流内嵌渲染 Devin 附件：图片直接显示、视频/文件点击播放（S3 解析，参考 wecom 桥）。"
+    },
+    {
+      "versionCode": 24,
+      "versionName": "2.11",
+      "notes": "LIVE 标改 web 同款紧凑小标（去掉通栏拉伸）。"
+    },
+    {
+      "versionCode": 23,
+      "versionName": "2.10",
+      "notes": "修复列表“📁 null”分区头；上传兜底放宽到任意异常均回退 PAT v3（图片发送实测全链路通过）。"
+    },
+    {
+      "versionCode": 22,
+      "versionName": "2.9",
+      "notes": "修复 ACP connect 死锁（发送/抽屉/排队静默卡死的根因）；运行中发送正确进排队；抽屉恢复；重连不再卡死。"
+    },
+    {
+      "versionCode": 21,
+      "versionName": "2.8",
+      "notes": "排队消息参数修正为服务端格式（发送不再报验证错）；acp 未连上时发送/抽屉回退 REST；去掉等待回复英文行；op 名修正为 send_now。"
+    },
+    {
+      "versionCode": 20,
+      "versionName": "2.7",
+      "notes": "上传任意 API 错误都回退 PAT v3；「加载更早」改为滑到历史顶端才出现并保留视口位置。"
+    },
+    {
+      "versionCode": 19,
+      "versionName": "2.6",
+      "notes": "加载更早只在有更早历史时出现；抽屉 ACP 列表失败自动回退 REST；运行中发送改走排队消息（对齐 web）。"
+    },
+    {
+      "versionCode": 18,
+      "versionName": "2.5",
+      "notes": "顶栏去掉 PR/网页钮，PR 改 pill 徽标（模型名·状态·PR）；模型 chip 兜底+resume 重试；加载更早挪消息流顶部；上传附件 API key 失效自动换 PAT 重试；修需要你操作:null。"
+    },
+    {
+      "versionCode": 17,
+      "versionName": "2.4",
+      "notes": "布局对齐 web：详情顶栏 ☰‹标题 pill ☆；chipsbar/排队条挪到输入框上方；composer 改为 📎 输入 ■ ↑；设置入口改左下 ⚙ 悬浮钮。"
+    },
+    {
+      "versionCode": 16,
+      "versionName": "2.3",
+      "notes": "左滑展开按钮条后右滑合上；抽屉点开立即弹出再加载会话；文件夹分区头不再可滑。"
+    },
+    {
+      "versionCode": 15,
+      "versionName": "2.2",
+      "notes": "交互形式对齐 web：列表左滑露出彩色按钮条（标签/重命名/归档/删除）；所有菜单/输入/确认改底部弹层；☰ 改真侧滑抽屉；设置页改底部弹层样式（背景点击收起）。"
+    },
+    {
+      "versionCode": 14,
+      "versionName": "2.1",
+      "notes": "列表页对齐 web：LIVE 标、⟳ 刷新钮、#tag 可点筛选（顶栏横幅可取消）、PR 徽标可点进内置网页、摘要行、★ 星标、📁 文件夹分区头；Devin 消息渲染 markdown-lite（代码/加粗/标题）。"
+    },
+    {
+      "versionCode": 13,
+      "versionName": "2.0",
+      "notes": "修复：PAT 填了但不生效（之前要求 API key 也是 cog_ 才有 ACP）——现在只看 PAT，org 用 PAT 自己探测；PAT 失效时列表也自动退回轮询。设置页两项配置显示连接状态（已配置/未配置/连接失败）。"
+    },
+    {
+      "versionCode": 12,
+      "versionName": "1.9",
+      "notes": "PAT 填错/失效时自动退回 REST 轮询模式并 toast 提示，不再白屏卡住。"
+    },
+    {
+      "versionCode": 10,
+      "versionName": "1.7",
+      "notes": "设置新增 PAT（实时模式）：填了 PAT 后 app 直连 ACP WebSocket——模型切换 chips、停止、排队消息、权限/机密/计划卡片、星标、未读、标签、重命名、文件夹、ACU 上限、保活，全部对齐 web；没填 PAT 仍是 REST 轮询模式。"
+    },
+    {
+      "versionCode": 9,
+      "versionName": "1.6",
+      "notes": "对齐 web：新建会话可选平台(linux/windows/macos)；输入框草稿自动保存；上滑时新消息出现「↓ 新消息」跳底按钮；消息里的链接可点击；详情页 ☰ 按钮快速切换会话。"
+    },
+    {
+      "versionCode": 8,
+      "versionName": "1.5",
+      "notes": "会话详情新增 📎 附件按钮（选文件上传后自动拼进消息）；会话列表支持左滑呼出操作菜单（归档/删除）。"
+    },
+    {
+      "versionCode": 7,
+      "versionName": "1.4",
+      "notes": "设置页 API key 行只显示已配置/未配置；外观新增「暖色」；已下载的更新包复用——安装时点错取消返回后直接重拉安装器，不再重新下载。"
+    },
+    {
+      "versionCode": 6,
+      "versionName": "1.3.2",
+      "notes": "在线更新流程验证版本（内容与 1.3.1 一致）。"
+    },
+    {
+      "versionCode": 5,
+      "versionName": "1.3.1",
+      "notes": "设置页 API key 收成一行（脱敏显示，点进去才可看可改）；修复切换外观/退出页面时误弹协程取消异常 toast；离线错误提示可读化。"
+    },
+    {
+      "versionCode": 4,
+      "versionName": "1.3",
+      "notes": "新增：设置页外观（跟随系统/浅色/深色）、清除缓存、检查更新按钮；会话列表与消息本地缓存（离线可查看）；org_id 自动探测不再手填；修复下载取消未中断的问题。"
+    },
+    {
+      "versionCode": 3,
+      "versionName": "1.2",
+      "notes": "新增：PR 状态彩色徽标（open 绿/merged 紫/closed 红）、长按归档/取消归档、详情页等待原因与 PR 跳转；在线更新与固定签名。"
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e18">
+  <title>一笔画</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="hud">
+        <button id="back-btn" class="ghost nav" aria-label="返回" onclick="location.href='../../index.html'">‹</button>
+        <button id="prev-btn" class="ghost nav" aria-label="上一关">‹</button>
+        <span id="level-chip">第 <input id="level-input" type="number" min="1" value="1" inputmode="numeric"> 关</span>
+        <button id="next-btn" class="ghost nav" aria-label="下一关">›</button>
+        <span id="level-label" class="label"></span>
+        <span id="timer-chip" class="label" style="display:none">⏱ 45</span>
+      </div>
+      <div class="actions">
+        <button id="hint-btn" class="ghost icon" title="提示可走方向">💡</button>
+        <button id="sound-btn" class="ghost icon" title="开关音效">🔊</button>
+        <button id="reset-btn" class="ghost">重玩</button>
+      </div>
+    </header>
+
+    <main class="board-wrap">
+      <canvas id="board"></canvas>
+      <div id="overlay" class="overlay">
+        <div class="overlay-card win-card">
+          <div class="conf"><i></i><i></i><i></i><i></i><i></i></div>
+          <h2>通关!🎉</h2>
+          <p class="win-sub" id="win-sub"></p>
+          <div class="win-btns">
+            <button id="overlay-replay" class="ghost">重玩</button>
+            <button id="overlay-next">下一关</button>
+          </div>
+        </div>
+      </div>
+      <div id="fail-ov" class="overlay">
+        <div class="overlay-card fail-card">
+          <h2>时间到!⏳</h2>
+          <p class="win-sub" id="fail-sub"></p>
+          <div class="win-btns">
+            <button id="fail-home" class="ghost">主页</button>
+            <button id="fail-retry">重试</button>
+          </div>
+        </div>
+      </div>
+      <div id="start-ov" class="overlay show">
+        <div class="overlay-card start-card">
+          <div class="w-left"><h2 class="v-title">一筆畫</h2><span class="hanko">壹筆</span></div>
+          <div class="w-right">
+            <p class="start-tip">一条线不抬手，经过所有亮点；<br>只能横竖连，每个点只能过一次</p>
+            <button id="start-btn" class="start-go">▶ 开始游戏</button>
+            <div class="diff-row"><button class="ghost diff" data-idx="0">易</button><button class="ghost diff" data-idx="3">中</button><button class="ghost diff" data-idx="7">难</button></div>
+            <button id="start-timed" class="ghost">⏱ 计时挑战</button>
+            <button id="start-cover" class="ghost"><img id="start-cover-img" class="cover-thumb" alt=""><span id="start-cover-txt">封面 · 蜡笔猫</span></button>
+            <button id="start-sound" class="ghost">🔊 音效 · 开</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p class="tip">画一条不抬手的线,经过所有亮点;连线只能水平/垂直,每个点只能经过一次。连错了可原路退回撤销;松开后点走过的点也能回退。</p>
+    </footer>
+  </div>
+
+  <script src="js/levels.js"></script>
+  <script src="js/generator.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>

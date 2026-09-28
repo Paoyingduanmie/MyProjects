@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.DevinMobile" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:statusBarColor">#FAF7F0</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:colorBackground">#FAF7F0</item>
+        <item name="colorSurface">#FAF7F0</item>
+        <item name="colorSurfaceVariant">#F1EDE3</item>
+        <item name="bubbleUserColor">#E4E0FA</item>
+        <item name="bubbleDevinColor">#F1EFE8</item>
+        <item name="listTitleColor">#5A4FD8</item>
+    </style>
+
+    <style name="Theme.DevinMobile.Warm" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">#C07D0A</item>
+        <item name="colorPrimaryContainer">#F3E3B8</item>
+        <item name="colorOnPrimaryContainer">#3D3324</item>
+        <item name="colorSecondary">#8A7A5C</item>
+        <item name="colorSecondaryContainer">#F2EAD6</item>
+        <item name="android:colorBackground">#FAF5EA</item>
+        <item name="colorSurface">#FAF5EA</item>
+        <item name="colorSurfaceVariant">#E9DFC5</item>
+        <item name="bubbleUserColor">#F3E3B8</item>
+        <item name="bubbleDevinColor">#F2EAD6</item>
+        <item name="listTitleColor">#C07D0A</item>
+        <item name="android:statusBarColor">#FAF5EA</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+    <style name="Theme.DevinMobile.Sheet" parent="Theme.Material3.DayNight.Dialog">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowMinWidthMajor">100%</item>
+        <item name="android:windowMinWidthMinor">100%</item>
+        <item name="android:windowAnimationStyle">@style/SheetAnim</item>
+    </style>
+
+    <style name="Theme.DevinMobile.Warm.Sheet" parent="Theme.Material3.Light.Dialog">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowMinWidthMajor">100%</item>
+        <item name="android:windowMinWidthMinor">100%</item>
+        <item name="android:windowAnimationStyle">@style/SheetAnim</item>
+        <item name="colorPrimary">#C07D0A</item>
+        <item name="colorPrimaryContainer">#F3E3B8</item>
+        <item name="colorOnPrimaryContainer">#3D3324</item>
+        <item name="colorSecondary">#8A7A5C</item>
+        <item name="colorSecondaryContainer">#F2EAD6</item>
+        <item name="android:colorBackground">#FAF5EA</item>
+        <item name="colorSurface">#FAF5EA</item>
+        <item name="colorSurfaceVariant">#E9DFC5</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <style name="SheetAnim">
+        <item name="android:windowEnterAnimation">@anim/slide_up</item>
+        <item name="android:windowExitAnimation">@anim/slide_down</item>
+    </style>
+</resources>

@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>一隅</title>
+<style>
+  :root {
+    --bg: #f5f2ec;
+    --bg2: #fffdf9;
+    --bg3: #eae4db;
+    --text: #302d30;
+    --text2: #716b69;
+    --accent: #a9475e;
+    --accent2: #c96b7d;
+    --border: #e4ddd5;
+    --mask: rgba(80,45,50,.38);
+    --shadow: 0 8px 24px rgba(66,49,49,.07);
+    --grad1: #f6a8bb; --grad2: #d4657f;
+    --glow-hi: rgba(246,168,187,.2);
+    --glow-lo: rgba(212,101,127,.12);
+    --card-tint: rgba(246,168,187,.07);
+    --play-shadow: rgba(212,101,127,.3);
+  }
+  html[data-theme="dark"] {
+    --bg: #201f23;
+    --bg2: #2c2a2e;
+    --bg3: #39363b;
+    --text: #f4eeeb;
+    --text2: #b9aca9;
+    --accent: #f2a6b5;
+    --border: #484044;
+    --mask: rgba(0,0,0,.62);
+    --shadow: 0 6px 18px rgba(0,0,0,.35);
+    --grad1: #4a333b; --grad2: #331e24;
+    --glow-hi: rgba(246,168,187,.16);
+    --glow-lo: rgba(246,168,187,.12);
+    --card-tint: rgba(246,168,187,.07);
+    --play-shadow: rgba(246,168,187,.3);
+  }
+  html[data-theme="warm"] {
+    --bg: #f7f0e4;
+    --bg2: #fffbf3;
+    --bg3: #e9dcc6;
+    --text: #42372e;
+    --text2: #796b5c;
+    --accent: #976329;
+    --accent2: #b28048;
+    --border: #e5d9c8;
+    --mask: rgba(80,60,30,.38);
+    --shadow: 0 6px 18px rgba(190,150,80,.16);
+    --grad1: #f0c078; --grad2: #d99e3f;
+    --glow-hi: rgba(240,192,120,.25);
+    --glow-lo: rgba(217,158,63,.12);
+    --card-tint: rgba(240,192,120,.10);
+    --play-shadow: rgba(217,158,63,.3);
+  }
+  @media (prefers-color-scheme: dark) {
+    html[data-theme="auto"] {
+      --bg: #201f23;
+      --bg2: #2c2a2e;
+      --bg3: #39363b;
+      --text: #f4eeeb;
+      --text2: #b9aca9;
+      --accent: #f2a6b5;
+      --border: #484044;
+      --mask: rgba(0,0,0,.62);
+      --shadow: 0 6px 18px rgba(0,0,0,.35);
+      --grad1: #4a333b; --grad2: #331e24;
+      --glow-hi: rgba(246,168,187,.16);
+      --glow-lo: rgba(246,168,187,.12);
+      --card-tint: rgba(246,168,187,.07);
+      --play-shadow: rgba(246,168,187,.3);
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
+    min-height: 100vh;
+    -webkit-user-select: none;
+    user-select: none;
+    background-image: radial-gradient(90vw 240px at 100% 0%, var(--glow-hi), transparent);
+  }
+  header {
+    padding: 34px 22px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .title-wrap { display: flex; flex-direction: column; gap: 5px; }
+  .eyebrow {
+    font-size: 10px; font-weight: 800; color: var(--accent);
+    letter-spacing: 2.5px; margin-bottom: 4px;
+  }
+  h1 {
+    font-size: 40px; font-weight: 800; letter-spacing: 2px;
+    line-height: 1.2; color: var(--text);
+  }
+  .subtitle { font-size: 13px; color: var(--text2); letter-spacing: .2px; line-height: 1.5; }
+  .ctrl { display: flex; gap: 8px; align-items: center; }
+  .ctrl button {
+    background: var(--bg2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    font-size: 16px;
+    padding: 9px 14px;
+    font-family: inherit;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: transform .12s ease;
+  }
+  .ctrl button:active { transform: scale(.93); }
+  .ctrl button.on {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    color: #fff;
+    border-color: transparent;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 16px 20px 100px;
+  }
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 7px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    text-decoration: none;
+    color: var(--text);
+    box-shadow: var(--shadow);
+    transition: transform .14s ease;
+    animation: cardIn .4s cubic-bezier(.2,.8,.3,1) backwards;
+    position: relative;
+    overflow: hidden;
+  }
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(16px) scale(.95); }
+    to { opacity: 1; transform: none; }
+  }
+  .card:active { transform: scale(.95); }
+  .card { touch-action: pan-y; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+  .grid.reorder { touch-action: none; }
+  .grid.reorder .card { animation: wig .26s ease-in-out infinite alternate; }
+  @keyframes wig { from { transform: rotate(-1.3deg); } to { transform: rotate(1.3deg); } }
+  .grid.reorder .card.drag { animation: none; z-index: 5; box-shadow: 0 14px 30px rgba(60,40,20,.22); }
+  .sort-tip { position: fixed; left: 50%; bottom: 92px; transform: translateX(-50%);
+    background: rgba(50,40,35,.85); color: #fff; font-size: 12px; padding: 7px 14px;
+    border-radius: 999px; z-index: 60; pointer-events: none; }
+  .card-art {
+    width: 100%; height: 148px;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; border-radius: 14px;
+    background: #eee5de;
+  }
+  .card[data-game="game-flappy"] .card-art { background: #e4f2f6; }
+  .card[data-game="game-flappy"].cover-full .card-art img { object-fit: cover; }
+  .card[data-game="game-onestroke"].cover-full .card-art img { object-fit: cover; }
+  .card[data-game="game-snake"] .card-art { background: #f5deec; }
+  .card[data-game="game-snake-classic"] .card-art { background: #eaf0d5; }
+  .card[data-game="game-fruit"] .card-art { background: #182d24; }
+  .card[data-game="game-fruit"].cover-light .card-art { background: #f5f0e8; }
+  .card[data-game="game-tetris"] .card-art { background: #1e2a53; }
+  .card[data-game="game-jump"] .card-art { background: #e9e4d6; }
+  .card[data-game="game-onestroke"] .card-art { background: #eaf3e2; }
+  .card[data-game="game-breakout"] .card-art { background: #f5f0e8; }
+  .card-art img {
+    display: block; width: 100%; height: 100%;
+    object-fit: contain;
+  }
+  .card-art img.jj-cover { object-fit: cover; }
+  .card-art .emoji {
+    font-size: 52px;
+  }
+  .card-meta {
+    display: flex; align-items: center; justify-content: space-between;
+    min-height: 55px; gap: 3px; padding: 8px 7px 2px;
+  }
+  .card .name {
+    font-size: 14px; font-weight: 750; letter-spacing: .1px;
+    line-height: 1.25; overflow-wrap: anywhere;
+  }
+  .card .play {
+    flex: none; width: 29px; height: 29px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; color: var(--accent);
+    background: var(--bg); border-radius: 50%;
+  }
+  .mini-board {
+    width: 112px; height: 112px;
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 5px; transform: rotate(-7deg);
+  }
+  .mini-board i {
+    display: flex; align-items: center; justify-content: center;
+    font-style: normal; font-weight: 800; font-size: 24px;
+    color: #4a5a8c; background: #dfe8fb; border-radius: 10px;
+    box-shadow: 0 3px 8px rgba(95,53,62,.12);
+  }
+  .mini-board i:nth-child(2) { background: #cfc9f2; }
+  .mini-board i:nth-child(3) { background: #e3a6c4; color: #7a3a5e; }
+  .mini-board i:nth-child(4) { background: linear-gradient(135deg, #6aa3f0, #e78ab5); color: #fff; }
+  .empty { padding: 60px 20px; text-align: center; opacity: 0.6; }
+  .bgm-state { font-size: 12px; color: var(--text2); padding: 2px 22px 0; min-height: 18px; }
+
+  /* 底部弹层 */
+  .sheet-mask {
+    position: fixed; top: 0; right: 0; bottom: 0; left: 0; background: var(--mask); z-index: 30;
+    display: flex; align-items: flex-end;
+    animation: maskIn .18s ease;
+  }
+  @keyframes maskIn { from { opacity: 0; } to { opacity: 1; } }
+  .sheet {
+    width: 100%; max-height: 72vh; overflow-y: auto;
+    background: var(--bg2); border-radius: 22px 22px 0 0;
+    padding: 8px 14px calc(env(safe-area-inset-bottom) + 16px);
+    animation: sheetIn .24s cubic-bezier(.2,.8,.3,1);
+    box-shadow: 0 -8px 32px rgba(0,0,0,.18);
+  }
+  @keyframes sheetIn { from { transform: translateY(48px); } to { transform: none; } }
+  .sheet::before {
+    content: ''; display: block; width: 38px; height: 4px;
+    border-radius: 999px; background: var(--border); margin: 6px auto 8px;
+  }
+  .sheet-title { font-size: 13px; font-weight: 700; color: var(--text2); padding: 4px 10px 10px; letter-spacing: .5px; }
+  .sheet-title.trow { display: flex; align-items: center; justify-content: space-between; }
+  .mbtn { font-size: 12px; font-weight: 700; color: var(--accent); border: 1.5px solid var(--accent2); border-radius: 999px; padding: 4px 14px; cursor: pointer; }
+  .mbtn:active { opacity: .6; }
+  .sel-bar { position: sticky; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 10px 2px; background: linear-gradient(transparent, var(--bg2) 30%); font-size: 13px; color: var(--text2); }
+  .sel-bar button { border: 0; border-radius: 999px; padding: 8px 22px; font-size: 13.5px; font-weight: 700; color: #fff; background: linear-gradient(135deg, var(--accent2), var(--accent)); box-shadow: var(--shadow); cursor: pointer; }
+  .sel-bar button:disabled { opacity: .4; box-shadow: none; }
+  .btn-row { display: flex; gap: 10px; padding: 4px 6px 8px; }
+  .btn-row button { flex: 1; border: 1.5px solid var(--accent2); background: var(--bg); color: var(--text); border-radius: 14px; padding: 14px 6px; font-size: 13.5px; font-weight: 700; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .btn-row button:active { opacity: .6; }
+  .btn-row button .bi { font-size: 20px; }
+  .sheet-sec {
+    font-size: 11px; font-weight: 700; color: var(--text2);
+    letter-spacing: .8px; padding: 12px 10px 4px;
+    border-top: 1px solid var(--border); margin-top: 6px;
+  }
+  .opt {
+    display: flex; align-items: center; gap: 12px; padding: 13px 10px;
+    border-radius: 12px; cursor: pointer; font-size: 14.5px;
+    transition: background .1s;
+  }
+  .opt:active { background: var(--bg); }
+  .opt.cur { color: var(--accent); font-weight: 700; }
+  .opt .ic { width: 22px; text-align: center; }
+  .opt-sub { margin-left: auto; color: var(--text2); font-size: 12px; font-weight: 400; }
+  .opt-act { margin-left: auto; display: flex; gap: 6px; }
+  .opt-act button {
+    border: 1px solid var(--accent); color: var(--accent); background: transparent;
+    border-radius: 8px; padding: 4px 10px; font-size: 12px; font-family: inherit;
+  }
+  .opt-act button:active { opacity: .6; }
+  .ver {
+    text-align: center; font-size: 12px; color: var(--text2);
+    padding: 16px 0 6px; cursor: pointer;
+  }
+  .ver:active { opacity: .6; }
+
+  /* 意见反馈 */
+  .fb-in {
+    width: 100%; min-height: 84px; border: 1.5px dashed var(--accent2);
+    border-radius: 14px; padding: 10px 12px; font: inherit; font-size: 14px;
+    background: var(--bg); color: var(--text); resize: none; margin: 2px 0 8px;
+  }
+  .fb-row { display: flex; gap: 8px; margin-bottom: 8px; }
+  .fb-nick {
+    flex: 1; border: 1.5px solid var(--border); border-radius: 999px;
+    padding: 8px 14px; font: inherit; font-size: 13px;
+    background: var(--bg); color: var(--text);
+  }
+  .fb-send {
+    border: 0; border-radius: 999px; padding: 8px 22px; font-size: 13.5px;
+    font-weight: 700; color: #fff; cursor: pointer;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    box-shadow: var(--shadow);
+  }
+  .fb-send:disabled { opacity: .5; box-shadow: none; }
+  .fb-list { display: flex; flex-direction: column; gap: 8px; }
+  .fb-item {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 14px;
+    padding: 10px 12px; font-size: 13px; color: var(--text);
+  }
+  .fb-item .fb-q { margin-bottom: 4px; }
+  .fb-item .fb-t { font-size: 10px; color: var(--text2); }
+  .fb-rep {
+    margin-top: 6px; background: var(--bg2); border-left: 3px solid var(--accent);
+    border-radius: 8px; padding: 6px 10px; font-size: 12.5px;
+  }
+  .fb-rep .fb-t { display: block; margin-top: 2px; }
+  .fb-rep.mine { border-left-color: var(--text2); background: var(--bg); }
+  .fb-rbtn {
+    margin-top: 6px; border: 1.5px dashed var(--accent2); border-radius: 999px;
+    padding: 3px 14px; font-size: 12px; color: var(--accent2);
+    background: transparent; cursor: pointer;
+  }
+  .fb-rbar {
+    display: none; align-items: center; justify-content: space-between;
+    font-size: 12px; color: var(--accent2); padding: 0 4px 6px;
+  }
+  .fb-rbar span { cursor: pointer; font-weight: 700; }
+  .fb-dot {
+    display: inline-block; min-width: 16px; height: 16px; line-height: 16px;
+    border-radius: 999px; background: #e35d7a; color: #fff;
+    font-size: 10px; text-align: center; padding: 0 4px; margin-left: 4px;
+  }
+
+  /* 底部三栏导航 + 页面切换 */
+  .page { padding-bottom: calc(78px + env(safe-area-inset-bottom)); }
+  .page[hidden] { display: none; }
+  .tabbar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+    display: flex; background: var(--bg2);
+    border-top: 1px solid var(--border);
+    padding-bottom: env(safe-area-inset-bottom);
+    box-shadow: 0 -4px 20px rgba(40,34,35,.06);
+  }
+  .tabbar button {
+    flex: 1; background: none; border: 0; font-family: inherit;
+    padding: 10px 0 8px; font-size: 11px; color: var(--text2);
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    cursor: pointer; transition: color .15s ease;
+    position: relative;
+  }
+  .tabbar .tabdot {
+    position: absolute; top: 5px; left: calc(50% + 8px);
+    width: 8px; height: 8px; border-radius: 50%; background: #e35d7a;
+  }
+  .tabbar button .ti { font-size: 20px; line-height: 1; transition: transform .15s ease; }
+  .tabbar button.on { color: var(--accent); font-weight: 700; }
+  .tabbar button.on .ti { transform: translateY(-1px) scale(1.08); }
+  .tabbar button.on::after {
+    content: ''; position: absolute; top: 0; left: 38%; right: 38%;
+    height: 2px; background: var(--accent); border-radius: 0 0 3px 3px;
+  }
+  .tabbar button:active .ti { transform: scale(.9); }
+  .ph-wrap {
+    min-height: 58vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 14px;
+    color: var(--text2); text-align: center;
+  }
+  .ph-emoji {
+    width: 84px; height: 84px; border-radius: 26px; font-size: 38px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg2); border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  .ph-text { font-size: 13px; line-height: 1.9; letter-spacing: .5px; }
+  .me-card {
+    margin: 6px 20px 14px; padding: 20px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border-radius: 22px; color: #fff; display: flex; align-items: center; gap: 14px;
+    box-shadow: var(--shadow);
+  }
+  .me-card .ava {
+    width: 54px; height: 54px; border-radius: 16px; background: rgba(255,255,255,.9);
+    display: flex; align-items: center; justify-content: center; font-size: 26px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
+  }
+  .me-card .nm { font-size: 17px; font-weight: 800; letter-spacing: .5px; }
+  .me-card .sm { font-size: 11.5px; opacity: .85; margin-top: 3px; }
+  .me-list { padding: 0 14px; }
+  .me-list .opt {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 14px; margin-bottom: 8px; padding: 15px 14px;
+    box-shadow: var(--shadow);
+  }
+  .me-list .opt:active { background: var(--bg); }
+  .log { font-size: 13px; line-height: 1.8; white-space: pre-wrap; padding: 2px 10px 12px; }
+  .upd-banner {
+    display: none; margin: 2px 8px 10px; padding: 10px 14px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    color: #fff; border-radius: 12px; font-size: 13.5px; font-weight: 700;
+    cursor: pointer; box-shadow: var(--shadow);
+  }
+  .upd-banner.show { display: flex; align-items: center; gap: 8px; }
+
+  /* 频谱动效：BGM 播放时按钮上的跳动条 */
+  .ctrl button .bars {
+    display: none; margin-left: 6px; gap: 1.5px; align-items: flex-end;
+    height: 13px; vertical-align: middle;
+  }
+  .ctrl button.on .bars { display: inline-flex; }
+  .ctrl button .bars i {
+    width: 2.5px; border-radius: 1px; background: #fff;
+    animation: eq .9s ease-in-out infinite;
+  }
+  .ctrl button .bars i:nth-child(1) { animation-delay: 0s; }
+  .ctrl button .bars i:nth-child(2) { animation-delay: .25s; }
+  .ctrl button .bars i:nth-child(3) { animation-delay: .5s; }
+  .ctrl button .bars i:nth-child(4) { animation-delay: .12s; }
+  @keyframes eq {
+    0%, 100% { height: 3px; } 50% { height: 13px; }
+  }
+</style>
+</head>
+<body>
+<div class="page" id="page-games">
+<header>
+  <div class="title-wrap">
+    <div class="eyebrow">A LITTLE PLAY SPACE</div>
+    <h1>一隅</h1>
+    <div class="subtitle" id="subtitle"></div>
+  </div>
+  <div class="ctrl">
+    <button id="bgmBtn" title="背景音乐">🎵<span class="bars"><i></i><i></i><i></i><i></i></span></button>
+    <input type="file" id="fileInput" accept="audio/*" multiple style="display:none">
+  </div>
+</header>
+<div class="bgm-state" id="bgmState"></div>
+<div class="grid" id="grid"></div>
+</div>
+
+<div class="page" id="page-other" hidden>
+<header>
+  <div class="title-wrap">
+    <h1>更多</h1>
+    <div class="subtitle">新功能筹备中</div>
+  </div>
+</header>
+<div class="ph-wrap">
+  <div class="ph-emoji">🧩</div>
+  <div class="ph-text">这里会放下一个小功能<br>敬请期待</div>
+</div>
+</div>
+
+<div class="page" id="page-me" hidden>
+<header>
+  <div class="title-wrap">
+    <h1>我的</h1>
+    <div class="subtitle">外观 · 更新 · 关于</div>
+  </div>
+</header>
+<div class="me-card">
+  <div class="ava">🐱</div>
+  <div>
+    <div class="nm">一隅</div>
+    <div class="sm" id="meVer"></div>
+  </div>
+</div>
+<div class="me-list" id="meList"></div>
+<div class="ver" id="meChangelog"></div>
+</div>
+
+<nav class="tabbar">
+  <button data-tab="games" class="on"><span class="ti">🎮</span>游戏</button>
+  <button data-tab="other"><span class="ti">🧩</span>更多</button>
+  <button data-tab="me"><span class="ti">👤</span>我的</button>
+</nav>
+
+<script src="./games.js"></script>
+<script src="./music.js"></script>
+<script>
+(() => {
+  const grid = document.getElementById('grid');
+  const bgmBtn = document.getElementById('bgmBtn');
+  const bgmState = document.getElementById('bgmState');
+  const bridge = window.Android || null;
+  if (bridge && bridge.orientation) bridge.orientation('auto');
+
+  // ---- 游戏卡片 ----
+  const jjCovers = { 'miyabi-flat':'cover-miyabi-flat.webp', 'miyabi-pixel':'cover-miyabi-pixel.webp',
+    'qiqi-flat':'cover-qiqi-flat.webp', 'qiqi-pixel':'cover-qiqi-pixel.webp' };
+  const gjCoverSrc = () => { const k = localStorage.getItem('jj-skin'); return jjCovers[k] ? './games/game-jump/covers/' + jjCovers[k] : 'icons/jump.png'; };
+  const FRUIT_COVERS = { '': 'icons/fruit-pixel.png', 'pixel': 'icons/fruit-pixel.png', 'orig': 'icons/fruit.png', 'slice': 'icons/fruit-slice.png' };
+  const FLAPPY_COVERS = { '': 'icons/flappy-crayon.png', 'crayon': 'icons/flappy-crayon.png', 'pixel': 'icons/flappy-pixel.png', 'orig': 'icons/flappy.png' };
+  const flappyCoverSrc = () => { const k = localStorage.getItem('flappy-cover') || ''; return FLAPPY_COVERS[k] || 'icons/flappy-crayon.png'; };
+  const paintFlappyCard = () => {
+    grid.querySelectorAll('a.card').forEach(c => {
+      if (c.dataset.game !== 'game-flappy') return;
+      const img = c.querySelector('.card-art img');
+      if (img) img.src = flappyCoverSrc();
+      c.classList.toggle('cover-full', (localStorage.getItem('flappy-cover') || 'crayon') !== 'orig');
+    });
+  };
+  const ONES_COVERS = { '': 'icons/onestroke.png', 'cat': 'icons/onestroke.png', 'grid1': 'icons/onestroke-grid1.png', 'grid2': 'icons/onestroke-grid2.png', 'paper': 'icons/onestroke-paper.png' };
+  const onesCoverSrc = () => { const k = localStorage.getItem('ones-cover') || ''; return ONES_COVERS[k] || 'icons/onestroke.png'; };
+  const paintOnesCard = () => {
+    grid.querySelectorAll('a.card').forEach(c => {
+      if (c.dataset.game !== 'game-onestroke') return;
+      const img = c.querySelector('.card-art img');
+      if (img) img.src = onesCoverSrc();
+      c.classList.add('cover-full');
+    });
+  };
+  const fruitCoverSrc = () => { const k = localStorage.getItem('fruit-cover') || ''; return FRUIT_COVERS[k] || 'icons/fruit-pixel.png'; };
+  const fruitCoverLight = () => (localStorage.getItem('fruit-cover') || 'pixel') !== 'orig';
+  const paintFruitCard = () => {
+    grid.querySelectorAll('a.card').forEach(c => {
+      if (c.dataset.game !== 'game-fruit') return;
+      const img = c.querySelector('.card-art img');
+      if (img) img.src = fruitCoverSrc();
+      c.classList.toggle('cover-light', fruitCoverLight());
+    });
+  };
+  const icons = { 'game-2048': 'mini-board', 'game-snake': 'img:icons/snake.png', 'game-snake-classic': 'img:icons/snake-classic.png', 'game-flappy': 'img:' + flappyCoverSrc(), 'game-tetris': 'img:icons/tetris.png', 'game-fruit': 'img:' + fruitCoverSrc(), 'game-jump': 'img:' + gjCoverSrc(), 'game-match3': 'img:icons/match3.png', 'game-onestroke': 'img:' + onesCoverSrc(), 'game-breakout': 'img:icons/breakout.png' };
+  const games = window.GAMES || [];
+  document.getElementById('subtitle').textContent =
+    games.length ? `这里有 ${games.length} 个小游戏，挑一款，玩一会儿` : '你的小小游戏空间';
+  try {
+    const ord = JSON.parse(localStorage.getItem('pg-order') || '[]');
+    if (ord.length) games.sort((a, b) => {
+      const i = ord.indexOf(a.id), j = ord.indexOf(b.id);
+      return (i < 0 ? 1e9 : i) - (j < 0 ? 1e9 : j);
+    });
+  } catch (e) {}
+  if (!games.length) {
+    grid.innerHTML = '<div class="empty">还没有游戏，往 playground/ 丢一个含 index.html 的目录就行</div>';
+  }
+  games.forEach((g, i) => {
+    const a = document.createElement('a');
+    a.className = 'card';
+    a.dataset.game = g.id;
+    a.href = './games/' + g.id + '/index.html';
+    a.style.animationDelay = (i * 60) + 'ms';
+    const ic = icons[g.id];
+    const icon = ic === 'mini-board'
+      ? '<div class="mini-board" aria-hidden="true"><i>2</i><i>4</i><i>8</i><i>16</i></div>'
+      : (ic && ic.indexOf('img:') === 0)
+        ? '<img class="' + (g.id === 'game-jump' ? 'jj-cover' : '') + '" src="' + ic.slice(4) + '" alt="">'
+        : '<div class="emoji">' + (ic || '🎮') + '</div>';
+    a.innerHTML = '<div class="card-art">' + icon + '</div><div class="card-meta"><div class="name"></div><div class="play" aria-hidden="true">↗</div></div>';
+    a.querySelector('.name').textContent = g.title;
+    a.setAttribute('draggable', 'false');
+    grid.appendChild(a);
+  });
+  paintFruitCard();
+  paintFlappyCard();
+  paintOnesCard();
+
+  // ---- 长按排序：长按进晃动模式，拖动换位，点空白完成，顺序存本机 ----
+  let reordering = false, tipEl = null;
+  function saveOrder() {
+    try { localStorage.setItem('pg-order', JSON.stringify([...grid.querySelectorAll('.card')].map(c => c.dataset.game))); } catch (e) {}
+  }
+  function enterReorder() {
+    if (reordering) return;
+    reordering = true;
+    grid.classList.add('reorder');
+    try { history.pushState({reorder: true}, ''); } catch (e) {}
+    try { if (navigator.vibrate) navigator.vibrate(20); } catch (e) {}
+    tipEl = document.createElement('div');
+    tipEl.className = 'sort-tip';
+    tipEl.textContent = '拖动卡片排序，点空白处完成';
+    document.body.appendChild(tipEl);
+  }
+  function exitReorder() {
+    if (!reordering) return;
+    reordering = false;
+    grid.classList.remove('reorder');
+    [...grid.children].forEach(c => { c.style.left = ''; c.style.top = ''; c.style.transition = ''; });
+    if (tipEl) { tipEl.remove(); tipEl = null; }
+    saveOrder();
+    try { if (history.state && history.state.reorder) history.back(); } catch (e) {}
+  }
+  let lpTimer = 0, lpX = 0, lpY = 0, lpPid = 0, lpCard = null, dragEl = null, grabDX = 0, grabDY = 0, curTX = 0, curTY = 0;
+  grid.addEventListener('contextmenu', e => e.preventDefault());
+  grid.addEventListener('pointerdown', e => {
+    const card = e.target.closest('.card');
+    if (!card) return;
+    if (reordering) { startDrag(card, e); return; }
+    lpX = e.clientX; lpY = e.clientY; lpPid = e.pointerId; lpCard = card;
+    lpTimer = setTimeout(() => { lpTimer = 0; enterReorder(); startDrag(lpCard, {clientX: lpX, clientY: lpY, pointerId: lpPid}); }, 460);
+  });
+  function startDrag(card, e) {
+    dragEl = card;
+    card.classList.add('drag');
+    const r = card.getBoundingClientRect();
+    grabDX = e.clientX - r.left; grabDY = e.clientY - r.top;
+    curTX = curTY = 0;
+    try { card.setPointerCapture(e.pointerId); } catch (err) {}
+  }
+  function moveDrag(e) {
+    e.preventDefault();
+    const r = dragEl.getBoundingClientRect();
+    curTX = e.clientX - grabDX - (r.left - curTX);
+    curTY = e.clientY - grabDY - (r.top - curTY);
+    dragEl.style.transform = `translate(${curTX}px, ${curTY}px) scale(1.06)`;
+    const cards = [...grid.children].filter(c => c !== dragEl && c.classList && c.classList.contains('card'));
+    const oldRects = new Map(cards.map(c => [c, c.getBoundingClientRect()]));
+    let before = null;
+    for (const c of cards) {
+      const cr = oldRects.get(c);
+      if (e.clientY < cr.top + cr.height / 2 - 4 || (e.clientY < cr.bottom && e.clientX < cr.left + cr.width / 2)) { before = c; break; }
+    }
+    if (before) grid.insertBefore(dragEl, before); else grid.appendChild(dragEl);
+    for (const c of cards) {
+      const o = oldRects.get(c), n = c.getBoundingClientRect();
+      const dx = o.left - n.left, dy = o.top - n.top;
+      if (!dx && !dy) continue;
+      c.style.transition = 'none';
+      c.style.left = dx + 'px'; c.style.top = dy + 'px';
+      c.getBoundingClientRect();
+      c.style.transition = 'left .2s ease, top .2s ease';
+      c.style.left = '0px'; c.style.top = '0px';
+    }
+  }
+  function endDrag() {
+    if (!dragEl) return;
+    dragEl.classList.remove('drag');
+    dragEl.style.transform = '';
+    dragEl = null; curTX = curTY = 0;
+    saveOrder();
+  }
+  window.addEventListener('popstate', () => { if (reordering) exitReorder(); });
+  grid.addEventListener('pointermove', e => {
+    if (lpTimer && (Math.abs(e.clientX - lpX) > 10 || Math.abs(e.clientY - lpY) > 10)) { clearTimeout(lpTimer); lpTimer = 0; }
+    if (dragEl) moveDrag(e);
+  });
+  grid.addEventListener('pointerup', () => { if (lpTimer) { clearTimeout(lpTimer); lpTimer = 0; } endDrag(); });
+  grid.addEventListener('pointercancel', () => { if (lpTimer) { clearTimeout(lpTimer); lpTimer = 0; } endDrag(); });
+  grid.addEventListener('click', e => { if (reordering) { e.preventDefault(); e.stopPropagation(); } }, true);
+  document.addEventListener('pointerdown', e => { if (reordering && !e.target.closest('.grid')) exitReorder(); }, true);
+  window.addEventListener('pageshow', () => {
+    grid.querySelectorAll('img.jj-cover').forEach(img => {
+      const card = img.closest('a.card');
+      if (card && card.href.indexOf('game-jump') > 0) img.src = gjCoverSrc();
+    });
+    paintFruitCard();
+    paintFlappyCard();
+    paintOnesCard();
+  });
+
+  // ---- 底部弹层基础 ----
+  function openSheet(build) {
+    const mask = document.createElement('div');
+    mask.className = 'sheet-mask';
+    const sheet = document.createElement('div');
+    sheet.className = 'sheet';
+    mask.appendChild(sheet);
+    mask.onclick = e => { if (e.target === mask) mask.remove(); };
+    document.body.appendChild(mask);
+    build(sheet, mask);
+    return mask;
+  }
+  function addTitle(sheet, t) {
+    const el = document.createElement('div');
+    el.className = 'sheet-title';
+    el.textContent = t;
+    sheet.appendChild(el);
+  }
+  function addSec(sheet, t) {
+    const el = document.createElement('div');
+    el.className = 'sheet-sec';
+    el.textContent = t;
+    sheet.appendChild(el);
+  }
+  function addOpt(sheet, icon, label, sub, onclick, cur) {
+    const el = document.createElement('div');
+    el.className = 'opt' + (cur ? ' cur' : '');
+    el.innerHTML = '<span class="ic">' + icon + '</span><span></span>' +
+                   (cur ? ' <span>✓</span>' : '');
+    el.children[1].textContent = label;
+    if (sub != null) {
+      const s = document.createElement('span');
+      s.className = 'opt-sub';
+      s.textContent = sub;
+      el.appendChild(s);
+    }
+    el.onclick = onclick;
+    sheet.appendChild(el);
+    return el;
+  }
+
+  // ---- BGM：内置曲库 + 用户导入，统一点击弹层选 ----
+  const tracks = window.MUSIC || [];
+  const userTracks = new Set();
+  if (bridge && bridge.bgmList) {
+    try { JSON.parse(bridge.bgmList()).forEach(n => userTracks.add(n)); } catch (e) {}
+  }
+  let curBgm = '';
+  try { curBgm = localStorage.getItem('pg-bgm') || ''; } catch (e) {}
+  // 播放模式：0 单曲循环 1 列表循环 2 随机播放
+  let playMode = 0;
+  try { playMode = +(localStorage.getItem('pg-playmode') || 0); } catch (e) {}
+  const MODE_ICONS = ['🔂', '🔁', '🔀'];
+  const MODE_NAMES = ['单曲循环', '列表循环', '随机播放'];
+
+  let webAudio = null;
+  function pgv(){var v=parseFloat(localStorage.getItem('pg_volume'));return isNaN(v)?1:v/100;}
+  function playBgm(file) {
+    curBgm = file || '';
+    try { localStorage.setItem('pg-bgm', curBgm); } catch (e) {}
+    bgmState.textContent = curBgm ? '♪ ' + curBgm.replace(/\.(mp3|ogg|m4a|wav)$/i, '') : '';
+    bgmBtn.classList.toggle('on', !!curBgm);
+    if (bridge && bridge.bgmPlay) {
+      if (!file) { bridge.bgmStop(); return; }
+      const all = [...tracks, ...[...userTracks].sort()];
+      bridge.bgmPlay(JSON.stringify({ files: all, cur: file, mode: playMode, vol: Math.min(1, pgv()) }));
+      return;
+    }
+    if (bridge && bridge.bgmSet) { bridge.bgmSet(file || null); return; }
+    if (webAudio) { webAudio.pause(); webAudio = null; }
+    if (file) {
+      webAudio = new Audio(file.startsWith('blob:') ? file : './music/' + file);
+      webAudio.loop = true;
+      webAudio.volume = Math.min(1, pgv());
+      webAudio.play().catch(() => {});
+    }
+  }
+
+  const fileInput = document.getElementById('fileInput');
+  // 选文件后的去向：'import' 导入并上传 / 'direct' 仅传云端 / false 普通导入
+  let pendingUpload = false;
+  const directUploads = new Map();   // 仅传云端（不入本地）的本批曲目
+  let cloudTrackSet = new Set();
+  // 歌名归一化：去扩展名+只留字母数字汉字，用于和云端文件名做同一首判断
+  const normTrack = s => (s || '').replace(/\.[^.]+$/, '').toLowerCase()
+    .replace(/[^0-9a-z\u4e00-\u9fff]+/g, '');
+  const sameSong = (a, b) => {
+    const na = normTrack(a), nb = normTrack(b);
+    return na && nb && (na === nb ||
+      (na.length >= 2 && nb.length >= 2 && (na.includes(nb) || nb.includes(na))));
+  };
+  const cloudHas = t => [...cloudTrackSet].some(c => sameSong(t, c));
+  const localHas = t => [...userTracks].some(u => sameSong(u, t));
+  const importBatch = [];
+  window.__bgmImported = name => {
+    userTracks.add(name);
+    importBatch.push(name);
+  };
+  window.__bgmImportDone = () => {
+    const mode = pendingUpload;
+    pendingUpload = false;
+    const batch = importBatch.splice(0);
+    if (mode === 'import' && batch.length) {
+      document.querySelectorAll('.sheet-mask').forEach(m => m.remove());
+      showUploadSheet();
+      document.querySelectorAll('.opt[data-up]').forEach(el => {
+        if (batch.includes(el.dataset.up) && el.onclick) el.click();
+      });
+      return;
+    }
+    if (mode === 'direct') return;   // 行由 __bgmUploading 回调补
+    if (batch.length) playBgm(batch[0]);
+  };
+  // 列表循环/随机时原生侧自动切歌，回调同步界面
+  window.__bgmTrack = name => {
+    curBgm = name;
+    try { localStorage.setItem('pg-bgm', name); } catch (e) {}
+    bgmState.textContent = '♪ ' + shortName(name);
+  };
+  window.__bgmDeleted = name => {
+    userTracks.delete(name);
+    if (curBgm === name) playBgm(null);
+    document.querySelectorAll('.opt[data-track]').forEach(el => {
+      if (el.dataset.track === name) el.remove();
+    });
+  };
+  // ---- 云端曲库：GitLab 仓库 playground/music/ 曲目列表 + 下载 ----
+  let cloudSelMode = false;
+  const cloudSel = new Set();
+  function showCloudSheet() {
+    openSheet((sheet, mask) => {
+      let data = null;
+      const render = () => {
+        sheet.innerHTML = '';
+        const trow = document.createElement('div');
+        trow.className = 'sheet-title trow';
+        const ttl = document.createElement('span');
+        ttl.textContent = '云端曲库';
+        trow.appendChild(ttl);
+        const bad = !data || data.err || !Array.isArray(data.tracks);
+        if (!bad && data.tracks.some(t => !localHas(t))) {
+          const mb = document.createElement('span');
+          mb.className = 'mbtn';
+          mb.textContent = cloudSelMode ? '取消' : '多选';
+          mb.onclick = () => { cloudSelMode = !cloudSelMode; cloudSel.clear(); render(); };
+          trow.appendChild(mb);
+        }
+        sheet.appendChild(trow);
+        if (!data) {
+          addOpt(sheet, '⏳', '加载中…', null, null);
+        } else if (bad) {
+          addOpt(sheet, '⚠️', '加载失败', data.err || '无法连接 GitLab', null, false);
+          addOpt(sheet, '🔁', '重试', null, () => { mask.remove(); showCloudSheet(); });
+        } else {
+          cloudTrackSet = new Set(data.tracks);
+          if (!data.tracks.length) {
+            addOpt(sheet, '☁️', '云端还没有曲目', '上传或推送音频到 playground/music/', null, false);
+          }
+          data.tracks.forEach(t => {
+            const has = localHas(t);
+            const sel = cloudSel.has(t);
+            const el = addOpt(sheet,
+              has ? '✅' : cloudSelMode ? (sel ? '☑️' : '⬜') : '☁️',
+              shortName(t),
+              has ? '已下载' : cloudSelMode ? null : '点击下载', null);
+            el.dataset.cloud = t;
+            if (has) {
+              if (cloudSelMode) el.style.opacity = '.45';
+            } else if (cloudSelMode) {
+              el.onclick = () => {
+                if (cloudSel.has(t)) cloudSel.delete(t); else cloudSel.add(t);
+                el.querySelector('.ic').textContent = cloudSel.has(t) ? '☑️' : '⬜';
+                const n = sheet.querySelector('.sel-bar .n');
+                if (n) n.textContent = cloudSel.size;
+                const b = sheet.querySelector('.sel-bar button');
+                if (b) b.disabled = !cloudSel.size;
+              };
+            } else {
+              el.onclick = () => dlCloud(el, t);
+            }
+          });
+          if (cloudSelMode && data.tracks.length) {
+            const bar = document.createElement('div');
+            bar.className = 'sel-bar';
+            const cnt = document.createElement('span');
+            cnt.innerHTML = '已选 <b class="n">0</b> 首';
+            bar.appendChild(cnt);
+            const btn = document.createElement('button');
+            btn.textContent = '下载';
+            btn.disabled = true;
+            btn.onclick = () => {
+              const picked = new Set(cloudSel);
+              cloudSelMode = false; cloudSel.clear();
+              render();
+              sheet.querySelectorAll('.opt[data-cloud]').forEach(el => {
+                if (picked.has(el.dataset.cloud)) dlCloud(el, el.dataset.cloud);
+              });
+            };
+            bar.appendChild(btn);
+            sheet.appendChild(bar);
+          }
+          if (bridge.hasUploadToken && bridge.hasUploadToken()) {
+            addSec(sheet, '上传');
+            addOpt(sheet, '⬆️', '上传我的音乐', '把本地歌曲推到云端',
+              () => { mask.remove(); showUploadSheet(); });
+          }
+        }
+      };
+      render();
+      try { data = JSON.parse(bridge.bgmCloudList() || '{}'); } catch (e) { data = { err: String(e) }; }
+      render();
+    });
+  }
+  function dlCloud(el, t) {
+    el.querySelector('.ic').textContent = '⏳';
+    const s = el.querySelector('.opt-sub');
+    if (s) s.textContent = '下载中…';
+    el.onclick = null;
+    bridge.bgmDownload(t);
+  }
+  window.__bgmDownloaded = name => {
+    userTracks.add(name);
+    document.querySelectorAll('.opt[data-cloud]').forEach(el => {
+      if (el.dataset.cloud === name) {
+        el.querySelector('.ic').textContent = '✅';
+        const s = el.querySelector('.opt-sub');
+        if (s) s.textContent = '已下载';
+        el.onclick = null;
+      }
+    });
+  };
+  window.__bgmDownloadError = name => {
+    document.querySelectorAll('.opt[data-cloud]').forEach(el => {
+      if (el.dataset.cloud === name) {
+        el.querySelector('.ic').textContent = '⚠️';
+        const s = el.querySelector('.opt-sub');
+        if (s) s.textContent = '下载失败·点击重试';
+        el.onclick = () => dlCloud(el, name);
+      }
+    });
+  };
+
+  // ---- 上传到云端：token 构建时注入，这里只管列+传 ----
+  function upsertDirectRow(sheet, name, ic, sub) {
+    let sec = sheet.querySelector('[data-dirsec]');
+    if (!sec) {
+      addSec(sheet, '直接上传（不入本地）');
+      sec = document.createElement('div');
+      sec.dataset.dirsec = '1';
+      sheet.appendChild(sec);
+    }
+    let el = [...sec.querySelectorAll('.opt')].find(e => e.dataset.dir === name);
+    if (!el) {
+      el = addOpt(sec, ic, shortName(name), sub, null);
+      el.dataset.dir = name;
+    } else {
+      el.querySelector('.ic').textContent = ic;
+      const s = el.querySelector('.opt-sub');
+      if (s) s.textContent = sub;
+    }
+    return el;
+  }
+  window.__bgmUploading = name => {
+    directUploads.set(name, true);
+    const sheet = document.querySelector('.sheet[data-kind=upload]');
+    if (sheet) upsertDirectRow(sheet, name, '⏳', '上传中…');
+  };
+  window.__bgmUploadSkip = name => {
+    directUploads.set(name, true);
+    const sheet = document.querySelector('.sheet[data-kind=upload]');
+    if (sheet) upsertDirectRow(sheet, name, '✅', '已在云端，未重复传');
+  };
+  function showUploadSheet() {
+    openSheet((sheet, mask) => {
+      sheet.dataset.kind = 'upload';
+      addTitle(sheet, '上传到云端曲库');
+      const btnRow = document.createElement('div');
+      btnRow.className = 'btn-row';
+      const b1 = document.createElement('button');
+      b1.innerHTML = '<span class="bi">☁️</span>仅上传';
+      b1.onclick = () => {
+        pendingUpload = 'direct';
+        if (bridge && bridge.bgmImportDirect) {
+          bridge.bgmImportDirect(JSON.stringify([...cloudTrackSet]));
+        } else {
+          pendingUpload = 'import';
+          pickBgmFile();
+        }
+      };
+      const b2 = document.createElement('button');
+      b2.innerHTML = '<span class="bi">📂</span>导入本地并上传';
+      b2.onclick = () => {
+        pendingUpload = 'import';
+        pickBgmFile();
+      };
+      btnRow.appendChild(b1);
+      btnRow.appendChild(b2);
+      sheet.appendChild(btnRow);
+      if (directUploads.size) {
+        addSec(sheet, '直接上传（不入本地）');
+        const sec = document.createElement('div');
+        sec.dataset.dirsec = '1';
+        sheet.appendChild(sec);
+        [...directUploads.keys()].forEach(name => {
+          const inCloud = cloudHas(name);
+          const el = addOpt(sec, inCloud ? '✅' : '☁️', shortName(name),
+            inCloud ? '已在云端' : '', null);
+          el.dataset.dir = name;
+        });
+      }
+      if (!userTracks.size) {
+        addOpt(sheet, 'ℹ️', '我的音乐是空的', '可先点上方从本地选择', null, false);
+        return;
+      }
+      addSec(sheet, '我的音乐');
+      [...userTracks].sort().forEach(t => {
+        const inCloud = cloudHas(t);
+        const el = addOpt(sheet, inCloud ? '✅' : '⬆️', shortName(t),
+          inCloud ? '已在云端' : '点击上传', null);
+        if (inCloud) return;
+        el.dataset.up = t;
+        el.onclick = () => {
+          el.querySelector('.ic').textContent = '⏳';
+          const s = el.querySelector('.opt-sub');
+          if (s) s.textContent = '上传中…';
+          el.onclick = null;
+          bridge.bgmUpload(t);
+        };
+      });
+    });
+  }
+  window.__bgmUploaded = name => {
+    cloudTrackSet.add(name);
+    document.querySelectorAll('.opt').forEach(el => {
+      if (el.dataset.up === name || el.dataset.dir === name) {
+        el.querySelector('.ic').textContent = '✅';
+        const s = el.querySelector('.opt-sub');
+        if (s) s.textContent = '已上传';
+        el.onclick = null;
+      }
+    });
+  };
+  window.__bgmUploadError = (name, err) => {
+    document.querySelectorAll('.opt').forEach(el => {
+      if (el.dataset.up === name || el.dataset.dir === name) {
+        el.querySelector('.ic').textContent = '⚠️';
+        const s = el.querySelector('.opt-sub');
+        if (s) s.textContent = (err || '上传失败') + '·点击重试';
+        el.onclick = () => {
+          el.querySelector('.ic').textContent = '⏳';
+          if (s) s.textContent = '上传中…';
+          el.onclick = null;
+          if (el.dataset.dir === name) bridge.bgmUploadDirect(name);
+          else bridge.bgmUpload(name);
+        };
+      }
+    });
+  };
+
+  function pickBgmFile() {
+    if (bridge && bridge.bgmImport) { bridge.bgmImport(); return; }
+    fileInput.click();
+  }
+  fileInput.onchange = () => {
+    const f = fileInput.files[0];
+    if (!f) return;
+    playBgm(URL.createObjectURL(f));
+    bgmState.textContent = '♪ ' + f.name + '（临时）';
+  };
+
+  const shortName = t => t.replace(/\.(mp3|ogg|m4a|wav)$/i, '');
+  function showBgmSheet() {
+    openSheet((sheet, mask) => {
+      addTitle(sheet, '背景音乐');
+      addOpt(sheet, '🔇', '关闭', null, () => { mask.remove(); playBgm(null); }, !curBgm);
+      if (tracks.length) {
+        addSec(sheet, '曲库');
+        for (const t of tracks) {
+          addOpt(sheet, '🎵', shortName(t), null,
+            () => { mask.remove(); playBgm(t); }, curBgm === t);
+        }
+      }
+      if (userTracks.size) {
+        addSec(sheet, '我的音乐');
+        for (const t of [...userTracks].sort()) {
+          const el = addOpt(sheet, '🎶', shortName(t), null,
+            () => { mask.remove(); playBgm(t); }, curBgm === t);
+          el.dataset.track = t;
+          if (bridge && bridge.bgmDelete) {
+            const del = document.createElement('span');
+            del.className = 'opt-sub';
+            del.textContent = '🗑';
+            del.onclick = e => {
+              e.stopPropagation();
+              if (confirm('删除「' + shortName(t) + '」？')) bridge.bgmDelete(t);
+            };
+            el.appendChild(del);
+          }
+        }
+      }
+      addSec(sheet, '其他');
+      addOpt(sheet, MODE_ICONS[playMode], '播放模式', MODE_NAMES[playMode], () => {
+        playMode = (playMode + 1) % 3;
+        try { localStorage.setItem('pg-playmode', playMode); } catch (e) {}
+        if (bridge && bridge.bgmSetMode) bridge.bgmSetMode(playMode);
+        mask.remove(); showBgmSheet();
+      });
+      if (bridge && bridge.bgmCloudList) {
+        addOpt(sheet, '☁️', '云端曲库', '从仓库下载歌曲', () => { mask.remove(); showCloudSheet(); });
+      }
+      if (bridge && bridge.audioFxConfig) {
+        addOpt(sheet, '🎚', '音效设置', '均衡器 / 低音 / 环绕',
+          () => { mask.remove(); showFxSheet(); });
+      }
+      addOpt(sheet, '📂', '导入本地音乐', '可从文件管理器选', () => { mask.remove(); pickBgmFile(); });
+    });
+  }
+  bgmBtn.onclick = showBgmSheet;
+
+  // ---- 音效设置：均衡器预设 / 低音 / 环绕 / 响度 ----
+  const EQ_NAMES = {
+    'Normal': '默认', 'Flat': '平直', 'Classical': '古典', 'Dance': '舞曲',
+    'Folk': '民谣', 'Heavy Metal': '重金属', 'Hip Hop': '嘻哈',
+    'Jazz': '爵士', 'Pop': '流行', 'Rock': '摇滚',
+  };
+  const BASS_LEVELS = [[0, '关'], [300, '轻'], [650, '中'], [1000, '重']];
+  // 未播放时设备无法列出预设，按系统标准顺序兜底（与 usePreset 下标一致）
+  const FALLBACK_PRESETS = ['默认', '古典', '舞曲', '平直', '民谣', '重金属', '嘻哈', '爵士', '流行', '摇滚'];
+  function fxCfg() {
+    try { return JSON.parse(bridge.audioFxConfig()); } catch (e) { return null; }
+  }
+  function showFxSheet() {
+    const cfg = fxCfg();
+    if (!cfg) return;
+    // 未播放时没有音频会话，探测必失败：乐观展示全部选项，播放时生效
+    const ok = cfg.playing ? (s => !!(cfg.supported && cfg.supported[s])) : (s => true);
+    openSheet((sheet, mask) => {
+      addTitle(sheet, '音效设置');
+      if (!cfg.playing) addOpt(sheet, 'ℹ️', '未在播放音乐', '选项将在播放时生效', null, false);
+      const refresh = () => { mask.remove(); showFxSheet(); };
+      let any = false;
+      let presets = (cfg.presets && cfg.presets.length) ? cfg.presets : (cfg.playing ? [] : FALLBACK_PRESETS);
+      if (ok('eq') && presets.length) {
+        any = true;
+        addSec(sheet, '均衡器');
+        presets.forEach((p, i) => {
+          addOpt(sheet, '🎚', EQ_NAMES[p] || p, null,
+            () => { bridge.audioSetPreset(i); refresh(); }, i === cfg.preset);
+        });
+      }
+      if (ok('bass')) {
+        any = true;
+        addSec(sheet, '低音增强');
+        BASS_LEVELS.forEach(([v, n]) => {
+          addOpt(sheet, '🔊', n, null,
+            () => { bridge.audioSetBass(v); refresh(); }, cfg.bass === v ||
+            (v === 0 && (cfg.bass === 0 || cfg.bass == null)));
+        });
+      }
+      if (ok('virt')) {
+        any = true;
+        addSec(sheet, '环绕声（耳机）');
+        addOpt(sheet, '🎧', '开启', null,
+          () => { bridge.audioSetVirtualizer(true); refresh(); }, cfg.virt === true);
+        addOpt(sheet, '🔈', '关闭', null,
+          () => { bridge.audioSetVirtualizer(false); refresh(); }, cfg.virt !== true);
+      }
+      if (ok('loud')) {
+        any = true;
+        addSec(sheet, '响度增强');
+        addOpt(sheet, '📢', '开启', '小声歌曲更响',
+          () => { bridge.audioSetLoudness(true); refresh(); }, cfg.loud === true);
+        addOpt(sheet, '🔈', '关闭', null,
+          () => { bridge.audioSetLoudness(false); refresh(); }, cfg.loud !== true);
+      }
+      if (!any) addOpt(sheet, '⚠️', '此设备不支持音效', cfg.err || '机型不开放系统音效接口', null, false);
+    });
+  }
+
+  // 恢复上次播放
+  try {
+    const known = tracks.includes(curBgm) || userTracks.has(curBgm);
+    if (curBgm && known) {
+      if (bridge && bridge.bgmState && bridge.bgmState() === curBgm) {
+        bgmState.textContent = '♪ ' + shortName(curBgm);
+        bgmBtn.classList.add('on');
+      } else {
+        playBgm(curBgm);
+      }
+    }
+  } catch (e) {}
+
+  // ---- 主题：米白/深色/暖黄 ----
+  const THEME_NAMES = { light: '米白', dark: '深色', warm: '暖黄' };
+  const THEME_ICONS = { light: '🍦', dark: '🌙', warm: '🌻' };
+  function savedTheme() {
+    let t = bridge && bridge.themeGet ? bridge.themeGet() : '';
+    if (!t) {
+      try { t = localStorage.getItem('pg-theme'); } catch (e) {}
+    }
+    return THEME_NAMES[t] ? t : 'light';
+  }
+  function applyTheme(t) {
+    if (bridge && bridge.themeSet) bridge.themeSet(t);
+    document.documentElement.dataset.theme = t;
+    try { localStorage.setItem('pg-theme', t); } catch (e) {}
+  }
+  applyTheme(savedTheme());
+
+  const appVersion = () =>
+    (bridge && bridge.appVersion) ? bridge.appVersion() : 'web';
+
+  function showThemeSheet() {
+    const cur = savedTheme();
+    openSheet((sheet, mask) => {
+      addTitle(sheet, '外观');
+      for (const [v, n] of Object.entries(THEME_NAMES)) {
+        addOpt(sheet, THEME_ICONS[v], n, null,
+          () => { applyTheme(v); mask.remove(); }, v === cur);
+      }
+    });
+  }
+
+  // 更新日志页顶部横幅：静默探测到新版本时提示（同 devin app 更新记录页）
+  window.__updatePeek = rel => {
+    const b = document.querySelector('.upd-banner');
+    if (b && rel) {
+      b.innerHTML = '<span>⬆️</span><span>发现新版本 v' + (rel.versionName || rel.versionCode) + ' · 点击更新</span>';
+      b.classList.add('show');
+      b.onclick = () => bridge && bridge.checkUpdate && bridge.checkUpdate();
+    }
+  };
+
+  function showLogSheet() {
+    openSheet(async (sheet) => {
+      addTitle(sheet, '更新日志');
+      const banner = document.createElement('div');
+      banner.className = 'upd-banner';
+      sheet.appendChild(banner);
+      const body = document.createElement('div');
+      body.className = 'log';
+      body.textContent = '加载中…';
+      sheet.appendChild(body);
+      let text = '';
+      try {
+        if (bridge && bridge.changelog) text = bridge.changelog();
+        else text = await (await fetch('./changelog.md')).text();
+      } catch (e) {}
+      body.textContent = text || '暂无日志';
+      if (bridge && bridge.peekUpdate) bridge.peekUpdate();
+    });
+  }
+
+  // ---- 意见反馈：GitLab issue 留言板，回复按设备 ID 拉回 ----
+  let fbMask = null, fbReplyTo = null, fbRowEl = null, fbTabEl = null;
+  function fbTabDot(show) {
+    if (!fbTabEl) return;
+    let d = fbTabEl.querySelector('.tabdot');
+    if (show && !d) { d = document.createElement('span'); d.className = 'tabdot'; fbTabEl.appendChild(d); }
+    if (!show && d) d.remove();
+  }
+  function fmtT(t) {
+    const d = typeof t === 'number' ? new Date(t) : new Date(t);
+    return (d.getMonth() + 1) + '/' + d.getDate() + ' ' +
+      String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  }
+  function fbRepCount(arr) {
+    let n = 0;
+    (arr || []).forEach(f => (f.replies || []).forEach(r => { if (!r.mine) n++; }));
+    return n;
+  }
+  function fbSeen() { try { return parseInt(localStorage.getItem('fb-seen') || '0', 10) || 0; } catch (e) { return 0; } }
+  function fbMarkSeen(n) { try { localStorage.setItem('fb-seen', String(n)); } catch (e) {} }
+  function fbBadge(n) {
+    if (!fbRowEl) return;
+    let d = fbRowEl.querySelector('.fb-dot');
+    if (n > 0) {
+      if (!d) { d = document.createElement('span'); d.className = 'fb-dot'; fbRowEl.children[1].appendChild(d); }
+      d.textContent = n > 99 ? '99+' : n;
+    } else if (d) d.remove();
+  }
+  function renderFb(listEl, arr) {
+    listEl.innerHTML = '';
+    if (!arr.length) {
+      listEl.innerHTML = '<div style="text-align:center;color:var(--text2);font-size:12px;padding:14px 0">还没有反馈，来第一条吧</div>';
+      return;
+    }
+    arr.slice().reverse().forEach(f => {
+      const it = document.createElement('div');
+      it.className = 'fb-item';
+      it.innerHTML = '<div class="fb-q"></div><div class="fb-t"></div>';
+      it.querySelector('.fb-q').textContent = f.text;
+      it.querySelector('.fb-t').textContent = '我 · ' + fmtT(f.at);
+      (f.replies || []).forEach(r => {
+        const rp = document.createElement('div');
+        rp.className = 'fb-rep' + (r.mine ? ' mine' : '');
+        rp.innerHTML = '<div></div><span class="fb-t"></span>';
+        rp.firstChild.textContent = r.body;
+        rp.querySelector('.fb-t').textContent = (r.by || '作者') + ' · ' + fmtT(r.at);
+        it.appendChild(rp);
+      });
+      if (bridge && bridge.fbReply) {
+        const rb = document.createElement('button');
+        rb.className = 'fb-rbtn'; rb.textContent = '回复';
+        rb.onclick = () => {
+          fbReplyTo = f.iid;
+          const bar = fbMask && fbMask.querySelector('.fb-rbar');
+          if (bar) bar.style.display = 'flex';
+          const ta = fbMask && fbMask.querySelector('.fb-in');
+          if (ta) { ta.placeholder = '回复「' + f.text.slice(0, 20) + '」…'; ta.focus(); }
+        };
+        it.appendChild(rb);
+      }
+      listEl.appendChild(it);
+    });
+  }
+  window.__fbData = arr => {
+    const total = fbRepCount(arr);
+    const l = fbMask && fbMask.querySelector('.fb-list');
+    if (l) { renderFb(l, arr || []); fbMarkSeen(total); fbBadge(0); fbTabDot(false); }
+    else {
+      const un = Math.max(0, total - fbSeen());
+      fbBadge(un);
+      fbTabDot(un > 0 && fbTabEl && !fbTabEl.classList.contains('on'));
+    }
+  };
+  window.__fbResult = (ok, msg) => {
+    if (!fbMask) return;
+    const tip = fbMask.querySelector('.fb-tip');
+    if (tip) tip.textContent = ok ? '已提交，我们会尽快回复 💌' : msg;
+    if (ok) {
+      fbMask.querySelector('.fb-in').value = '';
+      fbReplyTo = null;
+      const bar = fbMask.querySelector('.fb-rbar');
+      if (bar) bar.style.display = 'none';
+      const ta = fbMask.querySelector('.fb-in');
+      if (ta) ta.placeholder = '想说什么都可以，bug / 建议 / 夸夸都行…';
+      bridge.fbSync();
+    }
+    const b = fbMask.querySelector('.fb-send');
+    if (b) b.disabled = false;
+  };
+  function showFbSheet() {
+    fbReplyTo = null;
+    fbMask = openSheet((sheet) => {
+      addTitle(sheet, '意见反馈 · 设备 ' + (bridge.fbId ? bridge.fbId() : ''));
+      const rbar = document.createElement('div');
+      rbar.className = 'fb-rbar';
+      rbar.innerHTML = '<em>回复这条反馈</em><span>取消</span>';
+      rbar.querySelector('span').onclick = () => {
+        fbReplyTo = null; rbar.style.display = 'none';
+        const t = sheet.querySelector('.fb-in');
+        if (t) t.placeholder = '想说什么都可以，bug / 建议 / 夸夸都行…';
+      };
+      const ta = document.createElement('textarea');
+      ta.className = 'fb-in'; ta.placeholder = '想说什么都可以，bug / 建议 / 夸夸都行…';
+      const row = document.createElement('div'); row.className = 'fb-row';
+      const nick = document.createElement('input');
+      nick.className = 'fb-nick'; nick.placeholder = '昵称（可空）'; nick.maxLength = 20;
+      try { nick.value = localStorage.getItem('fb-nick') || ''; } catch (e) {}
+      const btn = document.createElement('button');
+      btn.className = 'fb-send'; btn.textContent = '提交';
+      btn.onclick = () => {
+        const t = ta.value.trim();
+        if (!t) return;
+        btn.disabled = true;
+        if (fbReplyTo != null && bridge.fbReply) { bridge.fbReply(fbReplyTo, t); return; }
+        try { localStorage.setItem('fb-nick', nick.value.trim()); } catch (e) {}
+        bridge.fbSubmit(nick.value, t);
+      };
+      row.appendChild(nick); row.appendChild(btn);
+      const tip = document.createElement('div');
+      tip.className = 'fb-t fb-tip'; tip.style.padding = '0 4px 8px';
+      const list = document.createElement('div'); list.className = 'fb-list';
+      list.innerHTML = '<div style="text-align:center;color:var(--text2);font-size:12px;padding:14px 0">加载中…</div>';
+      sheet.appendChild(rbar); sheet.appendChild(ta); sheet.appendChild(row);
+      sheet.appendChild(tip); sheet.appendChild(list);
+      bridge.fbSync();
+    });
+  }
+
+  // ---- 底部三栏导航 + 「我的」页 ----
+  const tabBtns = document.querySelectorAll('.tabbar button');
+  fbTabEl = document.querySelector('.tabbar button[data-tab="me"]');
+  tabBtns.forEach(b => {
+    b.onclick = () => {
+      tabBtns.forEach(x => x.classList.toggle('on', x === b));
+      for (const p of document.querySelectorAll('.page'))
+        p.hidden = p.id !== 'page-' + b.dataset.tab;
+      if (b === fbTabEl) fbTabDot(false);
+    };
+  });
+
+  const meList = document.getElementById('meList');
+  document.getElementById('meVer').textContent = 'v' + appVersion();
+  addOpt(meList, '🎨', '外观', null, () => showThemeSheet());
+  {
+    const volRow = addOpt(meList, '🔊', '全局音量', null, () => {});
+    const act = document.createElement('span');
+    act.className = 'opt-act';
+    act.style.cssText = 'display:flex;align-items:center;gap:8px';
+    const rng = document.createElement('input');
+    rng.type = 'range'; rng.min = 0; rng.max = 200; rng.step = 10;
+    rng.value = localStorage.getItem('pg_volume') || 100;
+    rng.style.width = '110px';
+    const vt = document.createElement('span');
+    vt.style.cssText = 'font-size:11px;color:#8a7f6d;min-width:36px;text-align:right';
+    vt.textContent = rng.value + '%';
+    rng.oninput = () => {
+      try { localStorage.setItem('pg_volume', rng.value); } catch (e) {}
+      vt.textContent = rng.value + '%';
+      if (webAudio) webAudio.volume = Math.min(1, pgv());
+      if (bridge && bridge.bgmVolume) bridge.bgmVolume(Math.min(1, pgv()));
+    };
+    rng.onclick = e => e.stopPropagation();
+    act.appendChild(rng); act.appendChild(vt);
+    volRow.appendChild(act);
+    volRow.onclick = null;
+  }
+  if (bridge && bridge.checkUpdate) {
+    const updRow = addOpt(meList, '⬆️', '检查更新', null, () => bridge.checkUpdate());
+    const paintUpd = () => {
+      if (!bridge.updateReady) return;
+      const code = bridge.updateReady();
+      updRow.querySelectorAll('.opt-act,.opt-sub').forEach(e => e.remove());
+      if (!code) return;
+      const size = bridge.updateCacheSize ? bridge.updateCacheSize() : '';
+      const s = document.createElement('span');
+      s.className = 'opt-sub';
+      s.textContent = '已下载' + (size ? ' ' + size : '');
+      const act = document.createElement('span');
+      act.className = 'opt-act';
+      const ins = document.createElement('button');
+      ins.textContent = '安装';
+      ins.onclick = e => { e.stopPropagation(); bridge.installDownloadedUpdate(); };
+      const del = document.createElement('button');
+      del.textContent = '删除';
+      del.onclick = e => {
+        e.stopPropagation();
+        bridge.clearUpdateCache();
+        setTimeout(paintUpd, 400);
+      };
+      act.appendChild(ins); act.appendChild(del);
+      updRow.appendChild(s); updRow.appendChild(act);
+    };
+    paintUpd();
+    updRow.addEventListener('click', () => setTimeout(paintUpd, 1500));
+    document.querySelector('.tabbar button[data-tab="me"]')
+      .addEventListener('click', paintUpd);
+  }
+  if (bridge && bridge.fbSync) {
+    fbRowEl = addOpt(meList, '💬', '意见反馈', '提意见 · 看回复', () => showFbSheet());
+    bridge.fbSync();
+  }
+  const meVer = document.getElementById('meChangelog');
+  meVer.textContent = '一隅 v' + appVersion() + ' · 查看更新日志';
+  meVer.onclick = showLogSheet;
+})();
+</script>
+</body>
+</html>
